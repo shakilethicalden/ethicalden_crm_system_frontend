@@ -38,6 +38,26 @@ const statusTone: Record<FollowUpStatus, BadgeTone> = {
   Cancelled: "muted",
 };
 
+function leadName(row: CrmFollowUp) {
+  return row.lead_name ?? row.lead_details?.name ?? row.lead;
+}
+
+function leadPhone(row: CrmFollowUp) {
+  return row.lead_details?.phone ?? "";
+}
+
+function employeeName(row: CrmFollowUp) {
+  return row.employee_detail?.name ?? row.employee_details?.name ?? row.created_by?.email ?? row.employee ?? "N/A";
+}
+
+function employeeEmail(row: CrmFollowUp) {
+  return row.employee_detail?.email ?? row.employee_details?.email ?? row.employee_details?.user?.email ?? row.created_by?.email ?? "";
+}
+
+function employeeContact(row: CrmFollowUp) {
+  return row.employee_detail?.contact_number ?? row.employee_details?.contact_number ?? "";
+}
+
 export default function FollowUpsPage() {
   const [viewing, setViewing] = useState<CrmFollowUp | null>(null);
   const [editing, setEditing] = useState<CrmFollowUp | null>(null);
@@ -106,8 +126,8 @@ export default function FollowUpsPage() {
           </>
         }
         columns={[
-          { key: "lead", label: "Lead", render: (row) => <div><p className="font-bold text-ink">{row.lead_details?.name ?? row.lead}</p><p className="text-xs text-muted">{row.lead_details?.phone ?? row.lead_details?.email ?? ""}</p></div> },
-          { key: "employee", label: "Employee", render: (row) => row.employee_details?.name ?? row.employee ?? "Auto assigned" },
+          { key: "lead", label: "Lead", render: (row) => <div><p className="font-bold text-ink">{leadName(row)}</p><p className="text-xs text-muted">{leadPhone(row) || row.lead_details?.email || ""}</p></div> },
+          { key: "employee", label: "Employee", render: (row) => <div><p className="font-semibold text-ink">{employeeName(row)}</p><p className="text-xs text-muted">{employeeEmail(row)}</p></div> },
           { key: "follow_up_type", label: "Type", sortable: true },
           { key: "status", label: "Status", render: (row) => <Badge tone={statusTone[row.status]}>{row.status}</Badge> },
           { key: "scheduled_at", label: "Scheduled", render: (row) => formatDateTime(row.scheduled_at), sortable: true },
@@ -125,23 +145,26 @@ export default function FollowUpsPage() {
           </div>
         )}
         searchPlaceholder="Search follow ups"
-        searchText={(row) => `${row.lead_details?.name ?? ""} ${row.employee_details?.name ?? ""} ${row.note} ${row.status} ${row.follow_up_type}`}
+        searchText={(row) => `${leadName(row)} ${employeeName(row)} ${employeeEmail(row)} ${row.note} ${row.status} ${row.follow_up_type}`}
         noun="follow ups"
         minWidth={1060}
         emptyText={error || "No follow ups found."}
       />
       {viewing ? (
         <DetailModal
-          title={viewing.lead_details?.name ?? "Follow up details"}
+          title={leadName(viewing)}
           description={`${viewing.follow_up_type} follow up`}
           icon="solar:calendar-mark-bold-duotone"
           isOpen
           onClose={() => setViewing(null)}
         >
           <DetailGrid>
-            <DetailItem label="Lead" value={viewing.lead_details?.name ?? viewing.lead} />
-            <DetailItem label="Lead phone" value={viewing.lead_details?.phone} />
-            <DetailItem label="Employee" value={viewing.employee_details?.name ?? viewing.employee ?? "Auto assigned"} />
+            <DetailItem label="Lead" value={leadName(viewing)} />
+            <DetailItem label="Lead phone" value={leadPhone(viewing)} />
+            <DetailItem label="Employee" value={employeeName(viewing)} />
+            <DetailItem label="Employee email" value={employeeEmail(viewing)} />
+            <DetailItem label="Employee contact" value={employeeContact(viewing)} />
+            <DetailItem label="Employee WhatsApp" value={viewing.employee_detail?.whatsapp ?? viewing.employee_details?.whatsapp} />
             <DetailItem label="Type" value={viewing.follow_up_type} />
             <DetailItem label="Status" value={<Badge tone={statusTone[viewing.status]}>{viewing.status}</Badge>} />
             <DetailItem label="Scheduled" value={formatDateTime(viewing.scheduled_at)} />
@@ -208,7 +231,7 @@ export default function FollowUpsPage() {
           )}
         </FormModal>
       ) : null}
-      <DeleteDialog label={deleting?.lead_details?.name ?? "follow up"} isOpen={!!deleting} isDeleting={isDeleting} onCancel={() => setDeleting(null)} onConfirm={() => void removeFollowUp()} />
+      <DeleteDialog label={deleting ? leadName(deleting) : "follow up"} isOpen={!!deleting} isDeleting={isDeleting} onCancel={() => setDeleting(null)} onConfirm={() => void removeFollowUp()} />
     </CrmPage>
   );
 }

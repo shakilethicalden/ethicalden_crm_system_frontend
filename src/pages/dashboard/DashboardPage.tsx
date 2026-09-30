@@ -84,7 +84,7 @@ export default function DashboardPage() {
             {followUpRows.slice(0, 5).map((item) => (
               <Link key={item.id} to="/follow-ups" className="flex items-center justify-between gap-3 rounded-md border border-line px-3 py-2 hover:bg-soft">
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-ink">{item.lead_details?.name ?? item.lead}</span>
+                  <span className="block truncate text-sm font-bold text-ink">{item.lead_name ?? item.lead_details?.name ?? item.lead}</span>
                   <span className="block truncate text-xs text-muted">{formatDateTime(item.scheduled_at)}</span>
                 </span>
                 <Badge tone={followUpTone[item.status] ?? "muted"}>{item.status}</Badge>
