@@ -46,6 +46,41 @@ export function RowButtons({ onEdit, onDelete }: { onEdit: () => void; onDelete:
   );
 }
 
+export function DetailModal({
+  title,
+  description,
+  icon,
+  isOpen,
+  onClose,
+  children,
+}: {
+  title: string;
+  description?: string;
+  icon: Parameters<typeof Modal>[0]["icon"];
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Modal isOpen={isOpen} title={title} description={description} icon={icon} onClose={onClose} size="lg">
+      <div className="grid gap-3">{children}</div>
+    </Modal>
+  );
+}
+
+export function DetailGrid({ children }: { children: ReactNode }) {
+  return <div className="grid gap-3 md:grid-cols-2">{children}</div>;
+}
+
+export function DetailItem({ label, value, full }: { label: string; value: ReactNode; full?: boolean }) {
+  return (
+    <div className={full ? "md:col-span-2" : undefined}>
+      <p className="text-[11px] font-bold tracking-wide text-muted uppercase">{label}</p>
+      <div className="mt-1 rounded-md border border-line bg-soft px-3 py-2 text-sm font-semibold text-ink">{value || "N/A"}</div>
+    </div>
+  );
+}
+
 export function FormModal<T>({
   title,
   description,
