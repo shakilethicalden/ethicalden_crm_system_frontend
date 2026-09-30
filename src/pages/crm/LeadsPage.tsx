@@ -19,14 +19,85 @@ const sourceOptions: LeadSource[] = ["Website", "Facebook", "Referral", "Phone",
 const priorityOptions: LeadPriority[] = ["Low", "Medium", "High"];
 const followUpTypeOptions: FollowUpType[] = ["Call", "Email", "Meeting", "Message", "Other"];
 const followUpStatusOptions: FollowUpStatus[] = ["Pending", "Completed", "Missed", "Cancelled"];
+const countryOptions = ["India", "USA", "Canada"] as const;
+
+const stateOptions: Record<(typeof countryOptions)[number], string[]> = {
+  India: [],
+  USA: [
+    "Alabama",
+    "Alaska",
+    "Arizona",
+    "Arkansas",
+    "California",
+    "Colorado",
+    "Connecticut",
+    "Delaware",
+    "Florida",
+    "Georgia",
+    "Hawaii",
+    "Idaho",
+    "Illinois",
+    "Indiana",
+    "Iowa",
+    "Kansas",
+    "Kentucky",
+    "Louisiana",
+    "Maine",
+    "Maryland",
+    "Massachusetts",
+    "Michigan",
+    "Minnesota",
+    "Mississippi",
+    "Missouri",
+    "Montana",
+    "Nebraska",
+    "Nevada",
+    "New Hampshire",
+    "New Jersey",
+    "New Mexico",
+    "New York",
+    "North Carolina",
+    "North Dakota",
+    "Ohio",
+    "Oklahoma",
+    "Oregon",
+    "Pennsylvania",
+    "Rhode Island",
+    "South Carolina",
+    "South Dakota",
+    "Tennessee",
+    "Texas",
+    "Utah",
+    "Vermont",
+    "Virginia",
+    "Washington",
+    "West Virginia",
+    "Wisconsin",
+    "Wyoming",
+  ],
+  Canada: [
+    "Alberta",
+    "British Columbia",
+    "Manitoba",
+    "New Brunswick",
+    "Newfoundland and Labrador",
+    "Northwest Territories",
+    "Nova Scotia",
+    "Nunavut",
+    "Ontario",
+    "Prince Edward Island",
+    "Quebec",
+    "Saskatchewan",
+    "Yukon",
+  ],
+};
 
 const emptyLead: CrmLeadPayload = {
   name: "",
   company_name: "",
   email: "",
   phone: "",
-  country: "Bangladesh",
-  state: "",
+  country: "India",
   address: "",
   source: "Website",
   priority: "Medium",
@@ -62,13 +133,17 @@ export default function LeadsPage() {
 
   function leadInitial(lead: CrmLead | null): CrmLeadPayload {
     if (!lead?.id) return emptyLead;
+    const country = countryOptions.includes(lead.country as (typeof countryOptions)[number])
+      ? (lead.country as (typeof countryOptions)[number])
+      : "India";
+
     return {
       name: lead.name,
       company_name: lead.company_name,
       email: lead.email,
       phone: lead.phone,
-      country: lead.country ?? "Bangladesh",
-      state: lead.state ?? "",
+      country,
+      state: stateOptions[country].includes(lead.state ?? "") ? (lead.state ?? "") : undefined,
       address: lead.address,
       source: lead.source,
       priority: lead.priority,
@@ -79,8 +154,8 @@ export default function LeadsPage() {
   function cleanLeadPayload(payload: CrmLeadPayload): CrmLeadPayload {
     return {
       ...payload,
-      country: payload.country || "Bangladesh",
-      state: payload.state?.trim() || undefined,
+      country: payload.country || "India",
+      state: payload.country === "India" ? undefined : payload.state?.trim() || undefined,
     };
   }
 
@@ -183,11 +258,33 @@ export default function LeadsPage() {
                 </Select>
               </Field>
               <Field label="Country">
-                <Input value={value.country} onChange={(event) => setValue({ country: event.target.value })} required />
+                <Select
+                  value={value.country}
+                  onChange={(event) => {
+                    const country = event.target.value as (typeof countryOptions)[number];
+                    setValue({ country, state: undefined });
+                  }}
+                  required
+                >
+                  {countryOptions.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </Select>
               </Field>
-              <Field label="State" hint="Optional">
-                <Input value={value.state ?? ""} onChange={(event) => setValue({ state: event.target.value || undefined })} />
-              </Field>
+              {value.country !== "India" ? (
+                <Field label="State">
+                  <Select value={value.state ?? ""} onChange={(event) => setValue({ state: event.target.value || undefined })} required>
+                    <option value="">Select state</option>
+                    {stateOptions[value.country as (typeof countryOptions)[number]].map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+              ) : null}
               <Field label="Address">
                 <Input value={value.address} onChange={(event) => setValue({ address: event.target.value })} />
               </Field>
