@@ -41,6 +41,7 @@ export type CrmEmployee = {
   user?: LoginUser;
   name: string;
   contact_number: string;
+  whatsapp?: string;
   address: string;
   created_at?: string;
   updated_at?: string;
@@ -50,8 +51,8 @@ export type CrmEmployeePayload = {
   email: string;
   name: string;
   contact_number: string;
+  whatsapp: string;
   address: string;
-  password?: string;
 };
 
 export type LeadSource = "Website" | "Facebook" | "Referral" | "Phone" | "Email" | "Other";

@@ -13,7 +13,18 @@ import type {
 import { useAsyncData } from "@/libs/hooks";
 import { followUpService, leadService } from "@/libs/services";
 import { formatDateTime } from "@/libs/utils/format";
-import { CrmPage, DeleteDialog, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
+import {
+  CrmPage,
+  DeleteDialog,
+  DetailGrid,
+  DetailItem,
+  DetailModal,
+  FormModal,
+  fromInputDateTime,
+  PageTitle,
+  RowButtons,
+  toInputDateTime,
+} from "./crmPageUtils";
 
 const sourceOptions: LeadSource[] = ["Website", "Facebook", "Referral", "Phone", "Email", "Other"];
 const priorityOptions: LeadPriority[] = ["Low", "Medium", "High"];
@@ -111,6 +122,7 @@ const priorityTone: Record<LeadPriority, BadgeTone> = {
 };
 
 export default function LeadsPage() {
+  const [viewing, setViewing] = useState<CrmLead | null>(null);
   const [editing, setEditing] = useState<CrmLead | null>(null);
   const [followUpLead, setFollowUpLead] = useState<CrmLead | null>(null);
   const [deleting, setDeleting] = useState<CrmLead | null>(null);
@@ -205,6 +217,9 @@ export default function LeadsPage() {
         getRowId={(row) => row.id}
         renderActions={(row) => (
           <div className="flex items-center gap-1.5">
+            <IconButton label={`View ${row.name}`} onClick={() => setViewing(row)}>
+              <Icon icon="solar:eye-linear" className="size-4" />
+            </IconButton>
             <IconButton label={`Create follow up for ${row.name}`} onClick={() => setFollowUpLead(row)}>
               <Icon icon="solar:calendar-add-linear" className="size-4" />
             </IconButton>
@@ -217,6 +232,30 @@ export default function LeadsPage() {
         minWidth={860}
         emptyText={error || "No leads found."}
       />
+      {viewing ? (
+        <DetailModal
+          title={viewing.name}
+          description={viewing.company_name || "Lead details"}
+          icon="solar:case-round-minimalistic-bold-duotone"
+          isOpen
+          onClose={() => setViewing(null)}
+        >
+          <DetailGrid>
+            <DetailItem label="Name" value={viewing.name} />
+            <DetailItem label="Company" value={viewing.company_name} />
+            <DetailItem label="Email" value={viewing.email} />
+            <DetailItem label="Phone" value={viewing.phone} />
+            <DetailItem label="Source" value={viewing.source} />
+            <DetailItem label="Priority" value={<Badge tone={priorityTone[viewing.priority]}>{viewing.priority}</Badge>} />
+            <DetailItem label="Country" value={viewing.country} />
+            <DetailItem label="State" value={viewing.state} />
+            <DetailItem label="Created" value={formatDateTime(viewing.created_at)} />
+            <DetailItem label="Updated" value={formatDateTime(viewing.updated_at)} />
+            <DetailItem label="Address" value={viewing.address} full />
+            <DetailItem label="Description" value={viewing.description} full />
+          </DetailGrid>
+        </DetailModal>
+      ) : null}
       {editing ? (
         <FormModal
           key={editing.id || "new"}

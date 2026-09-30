@@ -6,7 +6,7 @@ import { employeeService } from "@/libs/services";
 import { formatDateTime } from "@/libs/utils/format";
 import { CrmPage, DeleteDialog, FormModal, PageTitle, RowButtons } from "./crmPageUtils";
 
-const emptyEmployee: CrmEmployeePayload = { email: "", name: "", contact_number: "", address: "", password: "" };
+const emptyEmployee: CrmEmployeePayload = { email: "", name: "", contact_number: "", whatsapp: "", address: "" };
 
 export default function EmployeesPage() {
   const [editing, setEditing] = useState<CrmEmployee | null>(null);
@@ -34,7 +34,7 @@ export default function EmployeesPage() {
         description="Register team members and keep employee contact records tidy."
         onRefresh={() => void reload()}
         isRefreshing={isRefreshing}
-        onCreate={() => setEditing({ id: "", name: "", contact_number: "", address: "" })}
+        onCreate={() => setEditing({ id: "", name: "", contact_number: "", whatsapp: "", address: "" })}
         createLabel="New Employee"
       />
       <DataTable
@@ -44,6 +44,7 @@ export default function EmployeesPage() {
           { key: "name", label: "Name", sortable: true },
           { key: "email", label: "Email", render: (row) => row.user?.email ?? "N/A" },
           { key: "contact_number", label: "Contact" },
+          { key: "whatsapp", label: "WhatsApp", render: (row) => row.whatsapp || "N/A" },
           { key: "address", label: "Address", className: "max-w-[240px] truncate" },
           { key: "created_at", label: "Created", render: (row) => formatDateTime(row.created_at), sortable: true },
         ]}
@@ -60,12 +61,11 @@ export default function EmployeesPage() {
           description={editing.id ? "Update employee record information." : "Default password is 12345678 when left blank."}
           icon="solar:user-plus-bold-duotone"
           isOpen
-          initial={editing.id ? { email: editing.user?.email ?? "", name: editing.name, contact_number: editing.contact_number, address: editing.address } : emptyEmployee}
+          initial={editing.id ? { email: editing.user?.email ?? "", name: editing.name, contact_number: editing.contact_number, whatsapp: editing.whatsapp ?? "", address: editing.address } : emptyEmployee}
           onClose={() => setEditing(null)}
           onSubmit={async (payload) => {
-            const cleanPayload = { ...payload, password: payload.password || undefined };
-            if (editing.id) await employeeService.update(editing.id, cleanPayload);
-            else await employeeService.create(cleanPayload);
+            if (editing.id) await employeeService.update(editing.id, payload);
+            else await employeeService.create(payload);
             void reload();
           }}
         >
@@ -80,8 +80,8 @@ export default function EmployeesPage() {
               <Field label="Contact number">
                 <Input value={value.contact_number} onChange={(event) => setValue({ contact_number: event.target.value })} required />
               </Field>
-              <Field label="Password" hint="Optional for new employees.">
-                <Input type="password" value={value.password ?? ""} onChange={(event) => setValue({ password: event.target.value })} />
+              <Field label="WhatsApp">
+                <Input value={value.whatsapp} onChange={(event) => setValue({ whatsapp: event.target.value })} required />
               </Field>
               <Field label="Address" full>
                 <Input value={value.address} onChange={(event) => setValue({ address: event.target.value })} required />

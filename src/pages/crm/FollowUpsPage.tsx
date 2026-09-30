@@ -1,11 +1,22 @@
 import { useMemo, useState } from "react";
-import { Badge, DataTable, Field, FormGrid, Select, Textarea, Input } from "@/components/ui";
+import { Badge, DataTable, Field, FormGrid, Icon, IconButton, Select, Textarea, Input } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
 import type { CrmFollowUp, CrmFollowUpPayload, FollowUpStatus, FollowUpType } from "@/libs/api/types";
 import { useAsyncData } from "@/libs/hooks";
 import { followUpService, leadService } from "@/libs/services";
 import { formatDateTime } from "@/libs/utils/format";
-import { CrmPage, DeleteDialog, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
+import {
+  CrmPage,
+  DeleteDialog,
+  DetailGrid,
+  DetailItem,
+  DetailModal,
+  FormModal,
+  fromInputDateTime,
+  PageTitle,
+  RowButtons,
+  toInputDateTime,
+} from "./crmPageUtils";
 
 const typeOptions: FollowUpType[] = ["Call", "Email", "Meeting", "Message", "Other"];
 const statusOptions: FollowUpStatus[] = ["Pending", "Completed", "Missed", "Cancelled"];
@@ -28,6 +39,7 @@ const statusTone: Record<FollowUpStatus, BadgeTone> = {
 };
 
 export default function FollowUpsPage() {
+  const [viewing, setViewing] = useState<CrmFollowUp | null>(null);
   const [editing, setEditing] = useState<CrmFollowUp | null>(null);
   const [deleting, setDeleting] = useState<CrmFollowUp | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -104,13 +116,43 @@ export default function FollowUpsPage() {
           { key: "note", label: "Note", className: "max-w-[260px] truncate" },
         ]}
         getRowId={(row) => row.id}
-        renderActions={(row) => <RowButtons onEdit={() => setEditing(row)} onDelete={() => setDeleting(row)} />}
+        renderActions={(row) => (
+          <div className="flex items-center gap-1.5">
+            <IconButton label="View follow up" onClick={() => setViewing(row)}>
+              <Icon icon="solar:eye-linear" className="size-4" />
+            </IconButton>
+            <RowButtons onEdit={() => setEditing(row)} onDelete={() => setDeleting(row)} />
+          </div>
+        )}
         searchPlaceholder="Search follow ups"
         searchText={(row) => `${row.lead_details?.name ?? ""} ${row.employee_details?.name ?? ""} ${row.note} ${row.status} ${row.follow_up_type}`}
         noun="follow ups"
         minWidth={1060}
         emptyText={error || "No follow ups found."}
       />
+      {viewing ? (
+        <DetailModal
+          title={viewing.lead_details?.name ?? "Follow up details"}
+          description={`${viewing.follow_up_type} follow up`}
+          icon="solar:calendar-mark-bold-duotone"
+          isOpen
+          onClose={() => setViewing(null)}
+        >
+          <DetailGrid>
+            <DetailItem label="Lead" value={viewing.lead_details?.name ?? viewing.lead} />
+            <DetailItem label="Lead phone" value={viewing.lead_details?.phone} />
+            <DetailItem label="Employee" value={viewing.employee_details?.name ?? viewing.employee ?? "Auto assigned"} />
+            <DetailItem label="Type" value={viewing.follow_up_type} />
+            <DetailItem label="Status" value={<Badge tone={statusTone[viewing.status]}>{viewing.status}</Badge>} />
+            <DetailItem label="Scheduled" value={formatDateTime(viewing.scheduled_at)} />
+            <DetailItem label="Completed" value={formatDateTime(viewing.completed_at)} />
+            <DetailItem label="Next follow up" value={formatDateTime(viewing.next_follow_up_at)} />
+            <DetailItem label="Created" value={formatDateTime(viewing.created_at)} />
+            <DetailItem label="Updated" value={formatDateTime(viewing.updated_at)} />
+            <DetailItem label="Note" value={viewing.note} full />
+          </DetailGrid>
+        </DetailModal>
+      ) : null}
       {editing ? (
         <FormModal
           key={editing.id || "new"}
