@@ -39,6 +39,7 @@ export type DetailResponse<T> = {
 export type CrmEmployee = {
   id: string;
   user?: LoginUser;
+  email?: string;
   name: string;
   contact_number: string;
   whatsapp?: string;
@@ -93,9 +94,12 @@ export type FollowUpStatus = "Pending" | "Completed" | "Missed" | "Cancelled";
 export type CrmFollowUp = {
   id: string;
   lead: string;
+  lead_name?: string;
   lead_details?: CrmLead;
   employee?: string;
+  employee_detail?: CrmEmployee;
   employee_details?: CrmEmployee;
+  created_by?: LoginUser;
   follow_up_type: FollowUpType;
   status: FollowUpStatus;
   scheduled_at: string;
