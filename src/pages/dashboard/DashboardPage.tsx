@@ -3,15 +3,12 @@ import { Badge, Card, CardHeader, DashboardSkeleton, Icon, PageCard, type IconNa
 import type { BadgeTone } from "@/components/ui";
 import { useAsyncData } from "@/libs/hooks";
 import { employeeService, followUpService, leadService } from "@/libs/services";
-import { formatDateTime, formatMoney, formatNumber } from "@/libs/utils/format";
+import { formatDateTime, formatNumber } from "@/libs/utils/format";
 
-const leadTone: Record<string, BadgeTone> = {
-  New: "brand",
-  Contacted: "muted",
-  Qualified: "strong",
-  Proposal: "brand",
-  Won: "success",
-  Lost: "danger",
+const leadPriorityTone: Record<string, BadgeTone> = {
+  Low: "muted",
+  Medium: "brand",
+  High: "danger",
 };
 
 const followUpTone: Record<string, BadgeTone> = {
@@ -44,7 +41,7 @@ export default function DashboardPage() {
 
   const leadRows = leads?.data ?? [];
   const followUpRows = followUps?.data ?? [];
-  const totalValue = leadRows.reduce((sum, lead) => sum + Number(lead.estimated_value || 0), 0);
+  const highPriorityLeads = leadRows.filter((lead) => lead.priority === "High").length;
   const pendingFollowUps = followUpRows.filter((item) => item.status === "Pending").length;
 
   return (
@@ -53,7 +50,7 @@ export default function DashboardPage() {
         <CardHeader
           icon="solar:widget-5-bold-duotone"
           title="Ethical Den CRM"
-          description="A quick read on people, pipeline value, and scheduled client activity."
+          description="A quick read on people, lead priority, and scheduled client activity."
         >
           <Badge tone="strong">Live CRM</Badge>
         </CardHeader>
@@ -62,7 +59,7 @@ export default function DashboardPage() {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon="solar:users-group-rounded-bold-duotone" label="Employees" value={formatNumber(employees?.count)} href="/employees" />
         <MetricCard icon="solar:case-round-minimalistic-bold-duotone" label="Total Leads" value={formatNumber(leads?.count)} href="/leads" />
-        <MetricCard icon="solar:wallet-money-bold-duotone" label="Pipeline Value" value={formatMoney(totalValue)} href="/leads" />
+        <MetricCard icon="solar:danger-triangle-bold-duotone" label="High Priority Leads" value={formatNumber(highPriorityLeads)} href="/leads" />
         <MetricCard icon="solar:calendar-mark-bold-duotone" label="Pending Follow Ups" value={formatNumber(pendingFollowUps)} href="/follow-ups" />
       </section>
 
@@ -76,7 +73,7 @@ export default function DashboardPage() {
                   <span className="block truncate text-sm font-bold text-ink">{lead.name}</span>
                   <span className="block truncate text-xs text-muted">{lead.company_name || lead.phone}</span>
                 </span>
-                <Badge tone={leadTone[lead.status] ?? "muted"}>{lead.status}</Badge>
+                <Badge tone={leadPriorityTone[lead.priority] ?? "muted"}>{lead.priority}</Badge>
               </Link>
             ))}
           </div>

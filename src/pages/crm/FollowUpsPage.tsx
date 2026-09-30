@@ -3,7 +3,7 @@ import { Badge, DataTable, Field, FormGrid, Select, Textarea, Input } from "@/co
 import type { BadgeTone } from "@/components/ui";
 import type { CrmFollowUp, CrmFollowUpPayload, FollowUpStatus, FollowUpType } from "@/libs/api/types";
 import { useAsyncData } from "@/libs/hooks";
-import { employeeService, followUpService, leadService } from "@/libs/services";
+import { followUpService, leadService } from "@/libs/services";
 import { formatDateTime } from "@/libs/utils/format";
 import { CrmPage, DeleteDialog, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
 
@@ -12,7 +12,6 @@ const statusOptions: FollowUpStatus[] = ["Pending", "Completed", "Missed", "Canc
 
 const emptyFollowUp: CrmFollowUpPayload = {
   lead: "",
-  employee: "",
   follow_up_type: "Call",
   status: "Pending",
   scheduled_at: "",
@@ -41,11 +40,6 @@ export default function FollowUpsPage() {
     [query],
     { key: `crm-follow-ups:${status}:${type}` },
   );
-  const { data: employees } = useAsyncData(
-    (_fresh, signal) => employeeService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }),
-    [],
-    { key: "crm-employees-options" },
-  );
   const { data: leads } = useAsyncData(
     (_fresh, signal) => leadService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }),
     [],
@@ -64,7 +58,6 @@ export default function FollowUpsPage() {
     if (!followUp?.id) return emptyFollowUp;
     return {
       lead: followUp.lead,
-      employee: followUp.employee,
       follow_up_type: followUp.follow_up_type,
       status: followUp.status,
       scheduled_at: toInputDateTime(followUp.scheduled_at),
@@ -102,7 +95,7 @@ export default function FollowUpsPage() {
         }
         columns={[
           { key: "lead", label: "Lead", render: (row) => <div><p className="font-bold text-ink">{row.lead_details?.name ?? row.lead}</p><p className="text-xs text-muted">{row.lead_details?.phone ?? row.lead_details?.email ?? ""}</p></div> },
-          { key: "employee", label: "Employee", render: (row) => row.employee_details?.name ?? row.employee },
+          { key: "employee", label: "Employee", render: (row) => row.employee_details?.name ?? row.employee ?? "Auto assigned" },
           { key: "follow_up_type", label: "Type", sortable: true },
           { key: "status", label: "Status", render: (row) => <Badge tone={statusTone[row.status]}>{row.status}</Badge> },
           { key: "scheduled_at", label: "Scheduled", render: (row) => formatDateTime(row.scheduled_at), sortable: true },
@@ -145,12 +138,6 @@ export default function FollowUpsPage() {
                 <Select value={value.lead} onChange={(event) => setValue({ lead: event.target.value })} required>
                   <option value="">Select lead</option>
                   {(leads?.data ?? []).map((lead) => <option key={lead.id} value={lead.id}>{lead.name}</option>)}
-                </Select>
-              </Field>
-              <Field label="Employee">
-                <Select value={value.employee} onChange={(event) => setValue({ employee: event.target.value })} required>
-                  <option value="">Select employee</option>
-                  {(employees?.data ?? []).map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
                 </Select>
               </Field>
               <Field label="Type">

@@ -55,7 +55,6 @@ export type CrmEmployeePayload = {
 };
 
 export type LeadSource = "Website" | "Facebook" | "Referral" | "Phone" | "Email" | "Other";
-export type LeadStatus = "New" | "Contacted" | "Qualified" | "Proposal" | "Won" | "Lost";
 export type LeadPriority = "Low" | "Medium" | "High";
 
 export type CrmLead = {
@@ -68,13 +67,8 @@ export type CrmLead = {
   state: string | null;
   address: string;
   source: LeadSource;
-  status: LeadStatus;
   priority: LeadPriority;
-  estimated_value: string;
   description: string;
-  assigned_to: string | null;
-  assigned_to_details?: CrmEmployee | null;
-  assigned_employee?: CrmEmployee | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -84,15 +78,12 @@ export type CrmLeadPayload = {
   company_name: string;
   email: string;
   phone: string;
-  country: string | null;
-  state: string | null;
+  country: string;
+  state?: string;
   address: string;
   source: LeadSource;
-  status: LeadStatus;
   priority: LeadPriority;
-  estimated_value: string;
   description: string;
-  assigned_to: string | null;
 };
 
 export type FollowUpType = "Call" | "Email" | "Meeting" | "Message" | "Other";
@@ -102,7 +93,7 @@ export type CrmFollowUp = {
   id: string;
   lead: string;
   lead_details?: CrmLead;
-  employee: string;
+  employee?: string;
   employee_details?: CrmEmployee;
   follow_up_type: FollowUpType;
   status: FollowUpStatus;
@@ -116,7 +107,6 @@ export type CrmFollowUp = {
 
 export type CrmFollowUpPayload = {
   lead: string;
-  employee: string;
   follow_up_type: FollowUpType;
   status: FollowUpStatus;
   scheduled_at: string;
