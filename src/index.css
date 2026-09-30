@@ -1,0 +1,60 @@
+@import "@fontsource-variable/montserrat";
+@import "tailwindcss";
+
+/* Design tokens only — all styling lives in Tailwind utility classes. */
+@theme {
+  --font-sans: "Montserrat Variable", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand: #86ce47;
+  --color-brand-dark: #65b81f;
+  --color-ink: #142016;
+  --color-muted: #657062;
+  --color-line: #dfe8dc;
+  --color-soft: #f7faf4;
+  --color-mint: #eef8e7;
+  --color-field: #fbfdf9;
+  --color-danger: #d64545;
+  --color-danger-soft: #fff1f1;
+  --color-success: #2d7511;
+  --color-success-soft: #edffdf;
+
+  --shadow-card: 0 24px 70px rgba(25, 50, 18, 0.12);
+
+  /* `animate-progress`: indeterminate top bar shown while a route is loading */
+  --animate-progress: progress 1s ease-in-out infinite;
+  /* `animate-delayed-fade-in`: stay invisible for 200ms, so fast loads never flash a spinner */
+  --animate-delayed-fade-in: fade-in 150ms ease-out 200ms both;
+  /* `animate-fade-in`: quick fade for overlays / modals */
+  --animate-fade-in: fade-in 150ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes progress {
+    0% {
+      transform: translateX(-100%) scaleX(0.3);
+    }
+    50% {
+      transform: translateX(10%) scaleX(0.6);
+    }
+    100% {
+      transform: translateX(100%) scaleX(0.3);
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-soft font-sans text-ink antialiased;
+  }
+
+  button:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
