@@ -45,7 +45,7 @@ export function iconButtonClass(variant: IconButtonVariant = "default", classNam
 
 /** Shared look for input / select / textarea. */
 export const fieldControlClass =
-  "w-full rounded-md border border-white/12 bg-white/8 px-3 text-sm text-white outline-none transition duration-150 placeholder:text-white/35 focus:border-brand/45 focus:bg-white/12 focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:bg-white/5 disabled:opacity-70";
+  "w-full rounded-md border border-white/12 bg-white/8 px-3 text-sm text-white outline-none transition duration-150 [color-scheme:dark] placeholder:text-white/35 focus:border-brand/45 focus:bg-white/12 focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:bg-white/5 disabled:opacity-70";
 
 /** Outer page card (header + body + footer live inside). */
 export const cardClass =

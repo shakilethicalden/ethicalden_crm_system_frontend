@@ -66,7 +66,7 @@ export default function LoginPage() {
         <div className="mx-auto grid w-full max-w-[500px] gap-8 rounded-2xl border border-white/10 bg-white/7 p-6 shadow-2xl shadow-black/20 backdrop-blur sm:p-8">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl border border-brand/25 bg-white p-1.5">
+              <span className="grid size-11 place-items-center rounded-xl border border-brand/25 bg-white/10 p-1.5">
                 <img src="/edn_icon.png" alt="" className="size-full object-contain" />
               </span>
               <span>
