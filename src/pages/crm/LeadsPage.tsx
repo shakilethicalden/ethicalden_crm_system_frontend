@@ -4,7 +4,7 @@ import type { BadgeTone } from "@/components/ui";
 import type { CrmFollowUpPayload, CrmLead, CrmLeadPayload, FollowUpStatus, LeadPriority, LeadSource, LeadStatus } from "@/libs/api/types";
 import { hasRole, LEAD_CREATORS, useAuth } from "@/libs/auth";
 import { useAsyncData } from "@/libs/hooks";
-import { campaignService, countryService, followUpService, leadService, memberService, regionService } from "@/libs/services";
+import { campaignService, countryService, followUpService, leadService, regionService } from "@/libs/services";
 import { formatDateTime, formatStatus } from "@/libs/utils/format";
 import { CrmPage, DeleteDialog, DetailGrid, DetailItem, DetailModal, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
 
@@ -121,7 +121,6 @@ export default function LeadsPage() {
     [leadQuery],
     { key: `crm-leads:${priority}:${status}:${archived}` },
   );
-  const { data: members } = useAsyncData((_fresh, signal) => memberService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-members" });
   const { data: countries } = useAsyncData((_fresh, signal) => countryService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-countries" });
   const { data: regions } = useAsyncData((_fresh, signal) => regionService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-regions" });
   const { data: campaigns } = useAsyncData((_fresh, signal) => campaignService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-campaigns" });
@@ -262,18 +261,6 @@ export default function LeadsPage() {
                 <Select value={value.campaign} onChange={(event) => setValue({ campaign: event.target.value })} required>
                   <option value="">Select campaign</option>
                   {(campaigns?.data ?? []).map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
-                </Select>
-              </Field>
-              <Field label="Generator">
-                <Select value={value.generator ?? ""} onChange={(event) => setValue({ generator: event.target.value || undefined })}>
-                  <option value="">Backend default</option>
-                  {(members?.data ?? []).map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
-                </Select>
-              </Field>
-              <Field label="Assigned agent">
-                <Select value={value.assigned_agent ?? ""} onChange={(event) => setValue({ assigned_agent: event.target.value || null })}>
-                  <option value="">Unassigned</option>
-                  {(members?.data ?? []).map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
                 </Select>
               </Field>
               <Field label="Source"><Select value={value.source} onChange={(event) => setValue({ source: event.target.value })}>{sourceOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}</Select></Field>

@@ -5,9 +5,9 @@
   "scripts": {
     "icons": "node scripts/generate-icons.mjs",
     "predev": "npm run icons",
-    "dev": "vite",
+    "dev": "node api.js && vite",
     "prebuild": "npm run icons",
-    "build": "tsc -b && vite build",
+    "build": "node api.js && tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b"
