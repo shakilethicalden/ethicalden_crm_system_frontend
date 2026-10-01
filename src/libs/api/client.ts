@@ -1,7 +1,7 @@
 import axios, { AxiosError, type AxiosRequestConfig, type Method } from "axios";
 import { getAccessToken } from "@/libs/auth/session";
 
-export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? "https://crm.mrshakil.com/api";
+export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? "https://crmapi.mrshakil.com/api";
 
 /** Origin of the API server, used to resolve relative `/media/...` paths. */
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
