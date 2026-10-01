@@ -4,11 +4,11 @@ import { cn } from "@/libs/utils/cn";
 export type BadgeTone = "brand" | "muted" | "danger" | "success" | "strong";
 
 const tones: Record<BadgeTone, string> = {
-  brand: "bg-mint text-ink",
-  muted: "bg-[#f2f4f0] text-muted",
-  danger: "bg-danger-soft text-danger",
-  success: "bg-success-soft text-success",
-  strong: "bg-brand text-ink",
+  brand: "bg-brand/14 text-brand ring-1 ring-brand/20",
+  muted: "bg-white/10 text-white/60 ring-1 ring-white/10",
+  danger: "bg-danger/14 text-danger ring-1 ring-danger/20",
+  success: "bg-success/14 text-success ring-1 ring-success/20",
+  strong: "bg-brand text-portal shadow-sm shadow-brand/20",
 };
 
 /** Pill-shaped status label. */

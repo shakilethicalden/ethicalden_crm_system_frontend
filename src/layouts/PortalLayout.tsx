@@ -31,7 +31,15 @@ export function PortalLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-soft">
+    <div className="relative min-h-screen overflow-hidden bg-portal text-ink">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed -top-40 left-1/4 h-96 w-96 rounded-full bg-brand-dark/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed right-0 bottom-0 h-[32rem] w-[32rem] rounded-full bg-brand/10 blur-3xl"
+      />
       <NavigationProgress />
       <AppSidebar
         open={sidebarOpen}
@@ -48,7 +56,7 @@ export function PortalLayout() {
       >
         <AppHeader onToggleSidebar={() => setSidebarOpen((open) => !open)} />
 
-        <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+        <main className="relative z-10 flex flex-1 flex-col gap-6 p-4 md:p-6">
           <div className="flex-1">
             <Outlet />
           </div>

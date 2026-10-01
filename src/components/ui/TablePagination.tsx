@@ -28,7 +28,7 @@ function Step({ icon, label, disabled, onClick }: { icon: IconName; label: strin
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="flex size-8 items-center justify-center rounded-md border border-line bg-white text-muted transition-colors hover:border-brand-dark/40 hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line disabled:hover:text-muted"
+      className="flex size-8 items-center justify-center rounded-md border border-white/12 bg-white/8 text-white/55 transition-colors hover:border-brand/35 hover:bg-white/12 hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/12 disabled:hover:text-white/55"
     >
       <Icon icon={icon} className="size-4" />
     </button>
@@ -63,16 +63,16 @@ export function TablePagination({
   return (
     <div className={cn("flex flex-col-reverse items-center justify-between gap-3 sm:flex-row", className)}>
       <div className="flex items-center gap-3">
-        <p className="text-xs text-muted">
+        <p className="text-xs text-white/55">
           {totalItems === 0 ? (
             <>No {noun}</>
           ) : (
             <>
               Showing{" "}
-              <span className="font-semibold text-ink tabular-nums">
+              <span className="font-semibold text-white tabular-nums">
                 {first.toLocaleString()}-{last.toLocaleString()}
               </span>{" "}
-              of <span className="font-semibold text-ink tabular-nums">{totalItems.toLocaleString()}</span> {noun}
+              of <span className="font-semibold text-white tabular-nums">{totalItems.toLocaleString()}</span> {noun}
             </>
           )}
         </p>
@@ -80,7 +80,7 @@ export function TablePagination({
           aria-label="Rows per page"
           value={pageSize}
           onChange={(event) => onPageSizeChange(Number(event.target.value))}
-          className="h-8 rounded-md border border-line bg-white px-2 text-xs text-ink outline-none focus:border-brand-dark focus:ring-2 focus:ring-brand/25"
+          className="h-8 rounded-md border border-white/12 bg-white/8 px-2 text-xs text-white outline-none focus:border-brand/45 focus:ring-2 focus:ring-brand/20"
         >
           {PAGE_SIZE_OPTIONS.map((size) => (
             <option key={size} value={size}>
@@ -96,7 +96,7 @@ export function TablePagination({
 
         {pageWindow(page, totalPages).map((n, index) =>
           n === "gap" ? (
-            <span key={`gap-${index}`} className="px-1 text-xs text-muted">
+            <span key={`gap-${index}`} className="px-1 text-xs text-white/45">
               &hellip;
             </span>
           ) : (
@@ -108,8 +108,8 @@ export function TablePagination({
               className={cn(
                 "h-8 min-w-8 rounded-md px-2 text-xs font-semibold tabular-nums transition-colors",
                 n === page
-                  ? "bg-brand text-ink shadow-sm"
-                  : "border border-line bg-white text-muted hover:border-brand-dark/40 hover:text-brand-dark",
+                  ? "bg-brand text-portal shadow-sm"
+                  : "border border-white/12 bg-white/8 text-white/55 hover:border-brand/35 hover:bg-white/12 hover:text-brand",
               )}
             >
               {n}

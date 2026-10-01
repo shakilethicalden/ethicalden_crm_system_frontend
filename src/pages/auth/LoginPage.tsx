@@ -66,7 +66,7 @@ export default function LoginPage() {
         </div>
       </section>
 
-      <section className="grid content-center px-5 py-8 sm:px-10 lg:bg-white xl:px-16">
+      <section className="grid content-center bg-white px-5 py-8 sm:px-10 xl:px-16">
         <div className="mx-auto grid w-full max-w-[500px] gap-8">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">

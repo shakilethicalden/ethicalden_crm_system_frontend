@@ -19,7 +19,7 @@ function HeaderIconButton({ label, children, onClick }: { label: string; childre
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="hidden size-9 items-center justify-center rounded-lg border border-line bg-white text-muted transition-colors hover:border-brand-dark/40 hover:bg-mint hover:text-brand-dark sm:inline-flex"
+      className="hidden size-9 items-center justify-center rounded-lg border border-white/12 bg-white/8 text-white/65 transition-colors hover:border-brand/35 hover:bg-white/14 hover:text-brand sm:inline-flex"
     >
       {children}
     </button>
@@ -44,11 +44,11 @@ export function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-white/90 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-white/10 bg-portal/78 px-4 text-white shadow-lg shadow-black/10 backdrop-blur-xl sm:px-6">
       <button
         type="button"
         onClick={onToggleSidebar}
-        className="flex size-9 items-center justify-center rounded-md text-muted hover:bg-mint hover:text-ink lg:hidden"
+        className="flex size-9 items-center justify-center rounded-md text-white/65 hover:bg-white/10 hover:text-brand lg:hidden"
         aria-label="Toggle sidebar"
       >
         <Icon icon="solar:hamburger-menu-linear" className="size-5" />
@@ -126,7 +126,7 @@ function PageSearch() {
 
   return (
     <div ref={wrapperRef} className="relative hidden max-w-md flex-1 md:block">
-      <Icon icon="solar:magnifer-linear" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted/70" />
+      <Icon icon="solar:magnifer-linear" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/45" />
       <input
         ref={inputRef}
         type="search"
@@ -140,14 +140,14 @@ function PageSearch() {
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        className="w-full rounded-md border border-line bg-soft py-2 pr-16 pl-9 text-sm text-ink placeholder:text-muted/70 focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand/30 focus:outline-none"
+        className="w-full rounded-md border border-white/12 bg-white/8 py-2 pr-16 pl-9 text-sm text-white placeholder:text-white/45 focus:border-brand/45 focus:bg-white/12 focus:ring-2 focus:ring-brand/20 focus:outline-none"
       />
-      <span className="pointer-events-none absolute top-1/2 right-3 flex -translate-y-1/2 items-center rounded border border-line px-1.5 py-0.5 text-[11px] font-semibold text-muted/80">
+      <span className="pointer-events-none absolute top-1/2 right-3 flex -translate-y-1/2 items-center rounded border border-white/12 px-1.5 py-0.5 text-[11px] font-semibold text-white/45">
         Ctrl K
       </span>
 
       {open ? (
-        <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-xl shadow-ink/10">
+        <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-white/12 bg-portal/95 py-1 shadow-xl shadow-black/25 backdrop-blur-xl">
           {results.length ? (
             <ul role="listbox" aria-label="Pages">
               {results.map((link, index) => {
@@ -160,14 +160,14 @@ function PageSearch() {
                       onClick={() => go(link.href)}
                       className={cn(
                         "flex w-full items-center gap-3 px-3 py-2 text-left text-sm",
-                        index === highlight ? "bg-mint text-ink" : "text-muted",
+                        index === highlight ? "bg-white/12 text-white" : "text-white/62",
                       )}
                     >
-                      <span className="grid size-7 place-items-center rounded-md bg-white text-brand-dark ring-1 ring-line">
+                      <span className="grid size-7 place-items-center rounded-md bg-white/10 text-brand ring-1 ring-white/10">
                         {link.icon ? <Icon icon={link.icon} className="size-4" /> : null}
                       </span>
                       <span className="flex-1 font-semibold">{getNavLabel(link, role)}</span>
-                      <span className="text-xs text-muted/80">{link.section}</span>
+                      <span className="text-xs text-white/42">{link.section}</span>
                     </button>
                   </li>
                 );

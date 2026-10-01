@@ -14,13 +14,13 @@ const buttonSizes: Record<ButtonSize, string> = {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   /** Main call to action (New, Save). */
-  primary: "bg-brand text-ink shadow-sm hover:bg-[#78bf3b]",
+  primary: "bg-gradient-to-r from-brand-dark to-brand text-portal shadow-sm shadow-brand/20 hover:brightness-105",
   /** Secondary / cancel. */
-  ghost: "border border-line bg-white text-ink hover:border-brand-dark/40 hover:bg-mint",
+  ghost: "border border-white/12 bg-white/8 text-white hover:border-brand/35 hover:bg-white/12",
   /** Destructive confirm. */
   danger: "bg-danger text-white shadow-sm hover:bg-[#bf3a3a]",
   /** Low-emphasis tinted button. */
-  soft: "bg-mint text-brand-dark hover:bg-brand/25",
+  soft: "border border-brand/20 bg-brand/12 text-brand hover:bg-brand/18",
   /** Export / download (warm gradient like the design reference). */
   export:
     "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 text-white shadow-sm hover:from-amber-500 hover:via-yellow-600 hover:to-amber-600",
@@ -31,12 +31,12 @@ export function buttonClass(variant: ButtonVariant = "primary", className?: stri
 }
 
 const iconButtonBase =
-  "inline-grid size-8 shrink-0 place-items-center rounded-md border bg-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-grid size-8 shrink-0 place-items-center rounded-md border bg-white/8 transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40";
 
 const iconButtonVariants: Record<IconButtonVariant, string> = {
-  default: "border-line text-muted hover:border-brand-dark/40 hover:bg-mint hover:text-brand-dark",
-  danger: "border-line text-danger hover:border-danger/30 hover:bg-danger-soft",
-  complete: "border-line text-success hover:border-success/30 hover:bg-success-soft",
+  default: "border-white/12 text-white/58 hover:border-brand/35 hover:bg-white/12 hover:text-brand",
+  danger: "border-white/12 text-danger hover:border-danger/40 hover:bg-danger/12",
+  complete: "border-white/12 text-success hover:border-success/40 hover:bg-success/12",
 };
 
 export function iconButtonClass(variant: IconButtonVariant = "default", className?: string) {
@@ -45,7 +45,8 @@ export function iconButtonClass(variant: IconButtonVariant = "default", classNam
 
 /** Shared look for input / select / textarea. */
 export const fieldControlClass =
-  "w-full rounded-md border border-line bg-white px-3 text-sm text-ink outline-none transition duration-150 placeholder:text-muted/60 focus:border-brand-dark focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:bg-soft disabled:opacity-70";
+  "w-full rounded-md border border-white/12 bg-white/8 px-3 text-sm text-white outline-none transition duration-150 placeholder:text-white/35 focus:border-brand/45 focus:bg-white/12 focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:bg-white/5 disabled:opacity-70";
 
 /** Outer page card (header + body + footer live inside). */
-export const cardClass = "rounded-xl border border-line bg-white";
+export const cardClass =
+  "rounded-xl border border-white/10 bg-white/7 text-white shadow-2xl shadow-black/15 backdrop-blur [&_.text-ink]:!text-white [&_.text-muted]:!text-white/55 [&_.border-line]:!border-white/10 [&_.bg-soft]:!bg-white/6 [&_.bg-field]:!bg-white/6";

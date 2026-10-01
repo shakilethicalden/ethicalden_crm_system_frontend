@@ -38,14 +38,14 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col overflow-hidden border-r border-line bg-white transition-[width,transform] duration-300 ease-in-out lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col overflow-hidden border-r border-white/10 bg-portal text-white shadow-2xl shadow-black/25 transition-[width,transform] duration-300 ease-in-out lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed ? "lg:w-[70px]" : "lg:w-[260px]",
         )}
       >
         <div
           className={cn(
-            "flex h-16 flex-none items-center border-b border-line px-4",
+            "flex h-16 flex-none items-center border-b border-white/10 px-4",
             collapsed ? "justify-between lg:justify-center lg:px-2" : "justify-between",
           )}
         >
@@ -57,7 +57,7 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="hidden size-9 flex-none items-center justify-center rounded-md text-muted hover:bg-mint hover:text-ink lg:inline-flex"
+              className="hidden size-9 flex-none items-center justify-center rounded-md text-white/55 hover:bg-white/10 hover:text-brand lg:inline-flex"
               aria-label="Collapse sidebar"
               title="Collapse sidebar"
             >
@@ -68,7 +68,7 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1.5 text-muted hover:bg-mint lg:hidden"
+            className="rounded-md p-1.5 text-white/60 hover:bg-white/10 lg:hidden"
             aria-label="Close sidebar"
           >
             <Icon icon="solar:close-circle-linear" className="size-4" />
@@ -80,7 +80,7 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="flex size-9 items-center justify-center rounded-md text-muted hover:bg-mint hover:text-ink"
+              className="flex size-9 items-center justify-center rounded-md text-white/55 hover:bg-white/10 hover:text-brand"
               aria-label="Expand sidebar"
               title="Expand sidebar"
             >
@@ -103,7 +103,7 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
               ) : null}
               <p
                 className={cn(
-                  "mb-2 px-3 text-[11px] font-bold tracking-[0.08em] text-muted/80 uppercase",
+                  "mb-2 px-3 text-[11px] font-bold tracking-[0.08em] text-white/45 uppercase",
                   collapsed && "lg:hidden",
                 )}
               >
@@ -148,10 +148,10 @@ function SidebarLogo({ collapsed, role }: { collapsed: boolean; role: Role }) {
         <img src="/edn_icon.png" alt="" className="size-full object-contain" />
       </span>
       <span className={cn("leading-tight transition-opacity duration-200", collapsed && "pointer-events-none lg:hidden")}>
-        <span className="block text-base font-extrabold tracking-tight text-ink">
-          Ethical <span className="text-brand-dark">Den</span>
+        <span className="block text-base font-extrabold tracking-tight text-white">
+          Ethical <span className="text-brand">Den</span>
         </span>
-        <span className="block text-[10px] font-semibold tracking-wide text-muted uppercase">{PANEL_LABELS[role]}</span>
+        <span className="block text-[10px] font-semibold tracking-wide text-white/50 uppercase">{PANEL_LABELS[role]}</span>
       </span>
     </div>
   );
@@ -201,10 +201,10 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
   if (level > 0) {
     const nestedClass = cn(
       "flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-[13px] transition-colors",
-      active ? "font-bold text-brand-dark" : "text-muted hover:text-ink",
+      active ? "font-bold text-brand" : "text-white/55 hover:text-white",
     );
     const nestedIcon = node.icon ? (
-      <Icon icon={node.icon} className={cn("size-3.5 flex-none", active ? "text-brand-dark" : "text-muted/70")} />
+      <Icon icon={node.icon} className={cn("size-3.5 flex-none", active ? "text-brand" : "text-white/45")} />
     ) : null;
 
     return (
@@ -213,7 +213,7 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
           <button type="button" onClick={() => toggle(path)} className={nestedClass} aria-expanded={expanded}>
             {nestedIcon}
             <span className="flex-1 truncate text-left">{label}</span>
-            <Icon icon="solar:alt-arrow-right-linear" className={cn("size-3 text-muted/70 transition-transform", expanded && "rotate-90")} />
+            <Icon icon="solar:alt-arrow-right-linear" className={cn("size-3 text-white/35 transition-transform", expanded && "rotate-90")} />
           </button>
         ) : (
           <NavLink
@@ -236,9 +236,9 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
   const rowClass = cn(
     "group flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors",
     collapsed && "lg:justify-center lg:gap-0 lg:px-0 lg:py-1.5",
-    active && !collapsed && "bg-brand/15 font-bold text-ink",
-    active && collapsed && "font-bold text-ink",
-    !active && "font-semibold text-muted hover:bg-mint hover:text-ink",
+    active && !collapsed && "bg-white/12 font-bold text-white ring-1 ring-brand/25",
+    active && collapsed && "font-bold text-white",
+    !active && "font-semibold text-white/62 hover:bg-white/8 hover:text-white",
   );
 
   const iconBox = (
@@ -246,10 +246,10 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
       className={cn(
         "flex size-8 flex-none items-center justify-center rounded-lg transition-colors",
         active
-          ? "bg-brand text-ink shadow-sm shadow-brand/40"
+          ? "bg-gradient-to-br from-brand-dark to-brand text-portal shadow-sm shadow-brand/30"
           : collapsed
-            ? "bg-transparent text-brand-dark"
-            : "bg-mint text-brand-dark group-hover:bg-brand/25",
+            ? "bg-transparent text-brand"
+            : "bg-white/8 text-brand group-hover:bg-white/12",
       )}
     >
       {node.icon ? <Icon icon={node.icon} className="size-[18px]" /> : null}
@@ -272,7 +272,7 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
         >
           {iconBox}
           {labelEl}
-          <Icon icon="solar:alt-arrow-right-linear" className={cn("size-3.5 text-muted/60", collapsed && "lg:hidden")} />
+          <Icon icon="solar:alt-arrow-right-linear" className={cn("size-3.5 text-white/35", collapsed && "lg:hidden")} />
         </NavLink>
       </li>
     );
@@ -290,7 +290,7 @@ function NavItem({ node, level, path, role, pathname, collapsed, openMenus, togg
         {iconBox}
         {labelEl}
         <Icon icon="solar:alt-arrow-right-linear"
-          className={cn("size-3.5 text-muted/60 transition-transform", expanded && "rotate-90", collapsed && "lg:hidden")}
+          className={cn("size-3.5 text-white/35 transition-transform", expanded && "rotate-90", collapsed && "lg:hidden")}
         />
       </button>
       {children}
