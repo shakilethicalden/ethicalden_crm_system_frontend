@@ -58,7 +58,7 @@ export function ProfileDropdown() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex size-9 items-center justify-center overflow-hidden rounded-lg border border-line bg-white transition-colors hover:border-brand-dark/50"
+        className="flex size-9 items-center justify-center overflow-hidden rounded-lg border border-white/12 bg-white/8 transition-colors hover:border-brand/35 hover:bg-white/14"
         aria-label="Profile menu"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -69,23 +69,23 @@ export function ProfileDropdown() {
       {open ? (
         <div
           role="menu"
-          className="absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-line bg-white shadow-xl shadow-ink/10"
+          className="absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-white/12 bg-portal/95 text-white shadow-xl shadow-black/25 backdrop-blur-xl"
         >
-          <div className="flex items-center gap-3 border-b border-line px-4 py-3">
+          <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
             {avatar("size-10 shrink-0 rounded-full", "text-sm")}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-ink">{name}</p>
-              <p className="truncate text-xs text-muted">{email}</p>
+              <p className="truncate text-sm font-bold text-white">{name}</p>
+              <p className="truncate text-xs text-white/50">{email}</p>
             </div>
           </div>
 
           {user ? (
-            <div className="flex items-center gap-2 border-b border-line/70 px-4 py-2">
-              <span className="rounded-full bg-mint px-2 py-0.5 text-xs font-bold text-brand-dark">
+            <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2">
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-bold text-brand">
                 {formatRoleLabel(user)}
               </span>
               <span className={cn("ml-auto size-2 rounded-full", user.is_active ? "bg-brand" : "bg-line")} />
-              <span className="text-xs text-muted">{user.is_active ? "Active" : "Inactive"}</span>
+              <span className="text-xs text-white/50">{user.is_active ? "Active" : "Inactive"}</span>
             </div>
           ) : null}
 
@@ -96,16 +96,16 @@ export function ProfileDropdown() {
                   to={item.href}
                   role="menuitem"
                   onClick={close}
-                  className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-muted hover:bg-soft hover:text-ink"
+                  className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-white/62 hover:bg-white/8 hover:text-white"
                 >
-                  <Icon icon={item.icon} className="size-4 text-muted/70" />
+                  <Icon icon={item.icon} className="size-4 text-brand" />
                   {item.label}
                 </Link>
               </li>
             ))}
           </ul>
 
-          <div className="border-t border-line p-1.5">
+          <div className="border-t border-white/10 p-1.5">
             <button
               type="button"
               role="menuitem"

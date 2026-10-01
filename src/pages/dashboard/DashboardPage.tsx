@@ -99,12 +99,12 @@ export default function DashboardPage() {
 
 function MetricCard({ icon, label, value, href }: { icon: IconName; label: string; value: string; href: string }) {
   return (
-    <Link to={href} className="rounded-xl border border-line bg-white p-4 transition hover:border-brand-dark/40 hover:shadow-card">
-      <span className="grid size-10 place-items-center rounded-lg bg-mint text-brand-dark">
+    <Link to={href} className="rounded-xl border border-white/10 bg-white/7 p-4 text-white shadow-2xl shadow-black/15 backdrop-blur transition hover:border-brand/35 hover:bg-white/10">
+      <span className="grid size-10 place-items-center rounded-lg bg-brand/12 text-brand ring-1 ring-brand/20">
         <Icon icon={icon} className="size-5" />
       </span>
-      <span className="mt-4 block text-2xl font-extrabold text-ink">{value}</span>
-      <span className="text-sm font-semibold text-muted">{label}</span>
+      <span className="mt-4 block text-2xl font-extrabold text-white">{value}</span>
+      <span className="text-sm font-semibold text-white/55">{label}</span>
     </Link>
   );
 }

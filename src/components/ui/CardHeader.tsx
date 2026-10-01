@@ -3,10 +3,6 @@ import { useNavigate } from "react-router";
 import { cn } from "@/libs/utils/cn";
 import { Icon, type IconName } from "./Icon";
 
-/** Faded brand-green grid in the header corners (decorative). */
-const gridPattern =
-  "pointer-events-none absolute top-0 bottom-0 w-[28rem] opacity-[0.12] bg-[linear-gradient(to_right,var(--color-brand-dark)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-brand-dark)_1px,transparent_1px)] bg-[size:12px_12px]";
-
 type CardHeaderProps = {
   title: ReactNode;
   description?: ReactNode;
@@ -52,16 +48,7 @@ export function CardHeader({
   }
 
   return (
-    <div className={cn("relative overflow-hidden border-b border-line px-4 py-3", className)}>
-      <span
-        aria-hidden="true"
-        className={cn(gridPattern, "left-0 [mask-image:radial-gradient(ellipse_90%_100%_at_0%_0%,black_60%,transparent_100%)]")}
-      />
-      <span
-        aria-hidden="true"
-        className={cn(gridPattern, "right-0 [mask-image:radial-gradient(ellipse_90%_100%_at_100%_0%,black_60%,transparent_100%)]")}
-      />
-
+    <div className={cn("relative overflow-hidden border-b border-white/10 bg-white/5 px-4 py-3", className)}>
       <div className={cn("relative z-10 flex items-center justify-between gap-3", wrap && "flex-wrap")}>
         <div className="flex min-w-0 items-center gap-3">
           {showBack ? (
@@ -70,19 +57,19 @@ export function CardHeader({
               onClick={handleBack}
               aria-label="Go back"
               title="Go back"
-              className="grid size-8 shrink-0 place-items-center rounded-md border border-line bg-white text-muted transition-colors hover:border-brand-dark/40 hover:bg-mint hover:text-brand-dark"
+              className="grid size-8 shrink-0 place-items-center rounded-md border border-white/12 bg-white/8 text-white/55 transition-colors hover:border-brand/35 hover:bg-white/12 hover:text-brand"
             >
               <Icon icon="solar:arrow-left-linear" className="size-4" />
             </button>
           ) : null}
           {icon ? (
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-mint text-brand-dark">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-dark to-brand text-portal shadow-sm shadow-brand/20">
               <Icon icon={icon} className="size-5" />
             </span>
           ) : null}
           <div className="min-w-0">
-            <h2 className="truncate text-base font-bold text-ink">{title}</h2>
-            {description ? <p className="truncate text-xs text-muted">{description}</p> : null}
+            <h2 className="truncate text-base font-bold text-white">{title}</h2>
+            {description ? <p className="truncate text-xs text-white/55">{description}</p> : null}
           </div>
         </div>
 

@@ -30,7 +30,7 @@ export function NotificationDropdown({ notifications = [], onMarkAllRead }: Noti
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="relative flex size-9 items-center justify-center rounded-lg border border-line bg-white text-muted transition-colors hover:border-brand-dark/40 hover:bg-mint hover:text-brand-dark"
+        className="relative flex size-9 items-center justify-center rounded-lg border border-white/12 bg-white/8 text-white/65 transition-colors hover:border-brand/35 hover:bg-white/14 hover:text-brand"
         aria-label="Notifications"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -44,9 +44,9 @@ export function NotificationDropdown({ notifications = [], onMarkAllRead }: Noti
       </button>
 
       {open ? (
-        <div className="absolute top-full right-0 z-50 mt-2 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-white shadow-xl shadow-ink/10">
-          <div className="flex items-center justify-between border-b border-line px-4 py-3">
-            <p className="text-sm font-bold text-ink">Notifications</p>
+        <div className="absolute top-full right-0 z-50 mt-2 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-white/12 bg-portal/95 text-white shadow-xl shadow-black/25 backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+            <p className="text-sm font-bold text-white">Notifications</p>
             {unreadCount > 0 && onMarkAllRead ? (
               <button type="button" onClick={onMarkAllRead} className="text-xs font-bold text-brand-dark hover:underline">
                 Mark all as read
@@ -59,16 +59,16 @@ export function NotificationDropdown({ notifications = [], onMarkAllRead }: Noti
               {notifications.map((item) => (
                 <li
                   key={item.id}
-                  className="flex gap-3 border-b border-line/70 px-4 py-3 last:border-b-0 hover:bg-soft"
+                  className="flex gap-3 border-b border-white/10 px-4 py-3 last:border-b-0 hover:bg-white/8"
                 >
                   <span className="flex size-10 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-xs font-extrabold text-white">
                     {item.title.slice(0, 2).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-ink">
+                    <p className="text-sm text-white/78">
                       <span className="font-bold">{item.title}</span> {item.message}
                     </p>
-                    <p className="mt-0.5 text-xs text-muted">{item.time}</p>
+                    <p className="mt-0.5 text-xs text-white/45">{item.time}</p>
                   </div>
                   <span className={cn("mt-1 size-2 flex-none rounded-full", item.unread ? "bg-brand-dark" : "bg-transparent")} />
                 </li>
@@ -76,11 +76,11 @@ export function NotificationDropdown({ notifications = [], onMarkAllRead }: Noti
             </ul>
           ) : (
             <div className="grid justify-items-center gap-2 px-6 py-10 text-center">
-              <span className="grid size-11 place-items-center rounded-full bg-mint text-brand-dark">
+              <span className="grid size-11 place-items-center rounded-full bg-white/10 text-brand">
                 <Icon icon="solar:bell-off-linear" className="size-5" />
               </span>
-              <p className="text-sm font-bold text-ink">You're all caught up</p>
-              <p className="text-xs text-muted">New notifications will appear here.</p>
+              <p className="text-sm font-bold text-white">You're all caught up</p>
+              <p className="text-xs text-white/50">New notifications will appear here.</p>
             </div>
           )}
         </div>

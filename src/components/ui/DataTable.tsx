@@ -67,9 +67,9 @@ function cellValue<T>(row: T, column: DataTableColumn<T>) {
 
 function SortIcons({ active, dir }: { active: boolean; dir: SortDir }) {
   return (
-    <span className="ml-1 inline-flex flex-col leading-none text-muted/50" aria-hidden="true">
-      <Icon icon="solar:alt-arrow-up-linear" className={cn("size-2.5", active && dir === "asc" && "text-ink")} />
-      <Icon icon="solar:alt-arrow-down-linear" className={cn("-mt-0.5 size-2.5", active && dir === "desc" && "text-ink")} />
+    <span className="ml-1 inline-flex flex-col leading-none text-white/35" aria-hidden="true">
+      <Icon icon="solar:alt-arrow-up-linear" className={cn("size-2.5", active && dir === "asc" && "text-brand")} />
+      <Icon icon="solar:alt-arrow-down-linear" className={cn("-mt-0.5 size-2.5", active && dir === "desc" && "text-brand")} />
     </span>
   );
 }
@@ -168,7 +168,7 @@ export function DataTable<T>({
       {showToolbar ? (
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", padded ? "px-4 py-3" : "pb-3")}>
           {showRowsPerPage ? (
-            <label className="flex items-center gap-2 text-xs text-muted">
+            <label className="flex items-center gap-2 text-xs text-white/55">
               Row Per Page
               <select
                 value={pageSize}
@@ -176,7 +176,7 @@ export function DataTable<T>({
                   setPageSize(Number(event.target.value));
                   setPage(1);
                 }}
-                className="h-8 rounded-md border border-line bg-white px-2 text-xs text-ink outline-none focus:border-brand-dark focus:ring-2 focus:ring-brand/25"
+                className="h-8 rounded-md border border-white/12 bg-white/8 px-2 text-xs text-white outline-none focus:border-brand/45 focus:ring-2 focus:ring-brand/20"
               >
                 {PAGE_SIZE_OPTIONS.map((size) => (
                   <option key={size} value={size}>
@@ -196,7 +196,7 @@ export function DataTable<T>({
               <div className="relative w-full sm:w-64">
                 <Icon
                   icon="solar:magnifer-linear"
-                  className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted/70"
+                  className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-white/40"
                 />
                 <input
                   type="search"
@@ -208,7 +208,7 @@ export function DataTable<T>({
                     // Filtering is live; stop Enter from submitting a surrounding form.
                     if (event.key === "Enter") event.preventDefault();
                   }}
-                  className="h-8 w-full rounded-md border border-line bg-white pr-3 pl-8 text-xs text-ink outline-none placeholder:text-muted/60 focus:border-brand-dark focus:ring-2 focus:ring-brand/25"
+                  className="h-8 w-full rounded-md border border-white/12 bg-white/8 pr-3 pl-8 text-xs text-white outline-none placeholder:text-white/35 focus:border-brand/45 focus:ring-2 focus:ring-brand/20"
                 />
               </div>
             ) : null}
@@ -225,7 +225,7 @@ export function DataTable<T>({
               {columns.map((column) => (
                 <TH key={column.key} className={column.headClassName} aria-sort={sortKey === column.key ? (sortDir === "asc" ? "ascending" : "descending") : undefined}>
                   {column.sortable ? (
-                    <button type="button" onClick={() => toggleSort(column.key)} className="inline-flex items-center hover:text-ink">
+                    <button type="button" onClick={() => toggleSort(column.key)} className="inline-flex items-center hover:text-brand">
                       {column.label}
                       <SortIcons active={sortKey === column.key} dir={sortDir} />
                     </button>
