@@ -142,7 +142,7 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
   const showBulkAction = active === "countries";
 
   async function submitBulk(value: CountryBulkPayload) {
-    await countryService.bulkCreate(value);
+    await countryService.bulkCreate(normalizeBulkPayload(value));
     setBulkOpen(false);
     void countries.reload();
     void regions.reload();
@@ -193,22 +193,171 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
           initial={bulkValue}
           onClose={() => setBulkOpen(false)}
           onSubmit={async (value) => {
-            setBulkValue(value);
+            setBulkValue(normalizeBulkPayload(value));
             await submitBulk(value);
           }}
         >
           {(value, setValue) => (
-            <Field label="JSON payload" full>
-              <Textarea
-                value={JSON.stringify(value, null, 2)}
-                onChange={(event) => setValue(JSON.parse(event.target.value) as Partial<CountryBulkPayload>)}
-                className="min-h-56 font-mono text-xs"
-              />
-            </Field>
+            <BulkCountryFields value={value} setValue={setValue} />
           )}
         </FormModal>
       ) : null}
     </CrmPage>
+  );
+}
+
+function normalizeBulkPayload(value: CountryBulkPayload): CountryBulkPayload {
+  return {
+    countries: value.countries
+      .map((country) => ({
+        name: country.name.trim(),
+        regions: country.regions.map((region) => region.trim()).filter(Boolean),
+      }))
+      .filter((country) => country.name),
+  };
+}
+
+function BulkCountryFields({
+  value,
+  setValue,
+}: {
+  value: CountryBulkPayload;
+  setValue: (next: Partial<CountryBulkPayload>) => void;
+}) {
+  const [mode, setMode] = useState<"fields" | "json">("fields");
+  const [jsonText, setJsonText] = useState(() => JSON.stringify(value, null, 2));
+  const [jsonError, setJsonError] = useState("");
+
+  useEffect(() => {
+    if (mode === "fields") {
+      setJsonText(JSON.stringify(value, null, 2));
+      setJsonError("");
+    }
+  }, [mode, value]);
+
+  function updateCountry(index: number, name: string) {
+    setValue({
+      countries: value.countries.map((country, countryIndex) => (countryIndex === index ? { ...country, name } : country)),
+    });
+  }
+
+  function addCountry() {
+    setValue({ countries: [...value.countries, { name: "", regions: [""] }] });
+  }
+
+  function removeCountry(index: number) {
+    const countries = value.countries.filter((_, countryIndex) => countryIndex !== index);
+    setValue({ countries: countries.length ? countries : [{ name: "", regions: [""] }] });
+  }
+
+  function updateRegion(countryIndex: number, regionIndex: number, name: string) {
+    setValue({
+      countries: value.countries.map((country, currentCountryIndex) =>
+        currentCountryIndex === countryIndex
+          ? {
+              ...country,
+              regions: country.regions.map((region, currentRegionIndex) => (currentRegionIndex === regionIndex ? name : region)),
+            }
+          : country,
+      ),
+    });
+  }
+
+  function addRegion(countryIndex: number) {
+    setValue({
+      countries: value.countries.map((country, currentCountryIndex) =>
+        currentCountryIndex === countryIndex ? { ...country, regions: [...country.regions, ""] } : country,
+      ),
+    });
+  }
+
+  function removeRegion(countryIndex: number, regionIndex: number) {
+    setValue({
+      countries: value.countries.map((country, currentCountryIndex) => {
+        if (currentCountryIndex !== countryIndex) return country;
+        const regions = country.regions.filter((_, currentRegionIndex) => currentRegionIndex !== regionIndex);
+        return { ...country, regions: regions.length ? regions : [""] };
+      }),
+    });
+  }
+
+  function updateJson(text: string) {
+    setJsonText(text);
+
+    try {
+      const parsed = JSON.parse(text) as CountryBulkPayload;
+      if (!Array.isArray(parsed.countries)) {
+        throw new Error("countries must be an array");
+      }
+      setJsonError("");
+      setValue(parsed);
+    } catch (error) {
+      setJsonError(error instanceof Error ? error.message : "Invalid JSON");
+    }
+  }
+
+  return (
+    <div className="grid gap-4">
+      <div className="flex flex-wrap gap-2">
+        <Button variant={mode === "fields" ? "primary" : "ghost"} onClick={() => setMode("fields")}>
+          <Icon icon="solar:pen-linear" className="size-4" />
+          Input Fields
+        </Button>
+        <Button variant={mode === "json" ? "primary" : "ghost"} onClick={() => setMode("json")}>
+          <Icon icon="solar:database-bold-duotone" className="size-4" />
+          JSON
+        </Button>
+      </div>
+
+      {mode === "fields" ? (
+        <div className="grid gap-4">
+          {value.countries.map((country, countryIndex) => (
+            <div key={countryIndex} className="grid gap-3 rounded-md border border-line bg-soft p-3">
+              <div className="flex items-end gap-2">
+                <Field label={`Country ${countryIndex + 1}`} className="flex-1">
+                  <Input value={country.name} onChange={(event) => updateCountry(countryIndex, event.target.value)} placeholder="Bangladesh" required />
+                </Field>
+                <Button variant="danger" onClick={() => removeCountry(countryIndex)}>
+                  <Icon icon="solar:trash-bin-trash-linear" className="size-4" />
+                  Remove
+                </Button>
+              </div>
+
+              <div className="grid gap-2">
+                <p className="text-xs font-bold text-muted uppercase">Regions</p>
+                {country.regions.map((region, regionIndex) => (
+                  <div key={regionIndex} className="flex gap-2">
+                    <Input
+                      value={region}
+                      onChange={(event) => updateRegion(countryIndex, regionIndex, event.target.value)}
+                      placeholder="Dhaka"
+                      required
+                    />
+                    <IconButton label="Remove region" variant="danger" onClick={() => removeRegion(countryIndex, regionIndex)}>
+                      <Icon icon="solar:trash-bin-trash-linear" className="size-4" />
+                    </IconButton>
+                  </div>
+                ))}
+                <Button variant="ghost" onClick={() => addRegion(countryIndex)}>
+                  <Icon icon="solar:add-circle-linear" className="size-4" />
+                  Add Region
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          <Button variant="soft" onClick={addCountry}>
+            <Icon icon="solar:add-circle-linear" className="size-4" />
+            Add Country
+          </Button>
+        </div>
+      ) : (
+        <Field label="JSON payload" full>
+          <Textarea value={jsonText} onChange={(event) => updateJson(event.target.value)} className="min-h-56 font-mono text-xs" />
+          {jsonError ? <span className="text-xs font-semibold text-danger">{jsonError}</span> : null}
+        </Field>
+      )}
+    </div>
   );
 }
 
