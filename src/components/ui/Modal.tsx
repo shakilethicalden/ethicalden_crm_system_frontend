@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/libs/utils/cn";
 import { Icon, type IconName } from "./Icon";
 
@@ -87,9 +88,9 @@ export function Modal({
     return null;
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 grid animate-fade-in place-items-center overflow-y-auto bg-ink/40 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 grid animate-fade-in place-items-center overflow-y-auto bg-black/55 p-4 backdrop-blur-[3px]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !isBusy) {
           onClose();
@@ -104,28 +105,28 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          "w-full overflow-hidden rounded-xl border border-line bg-white shadow-card outline-none",
+          "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-xl border border-white/10 bg-portal text-white shadow-2xl shadow-black/30 outline-none [&_.text-ink]:!text-white [&_.text-muted]:!text-white/55 [&_.border-line]:!border-white/10 [&_.bg-soft]:!bg-white/6 [&_.bg-field]:!bg-white/6",
           sizes[size],
           className,
         )}
       >
-        <div className="flex items-start gap-3 border-b border-line px-4 py-3">
+        <div className="flex items-start gap-3 border-b border-white/10 bg-white/5 px-4 py-3">
           {icon ? (
             <span
               className={cn(
                 "grid size-9 shrink-0 place-items-center rounded-lg",
-                iconTone === "danger" ? "bg-danger-soft text-danger" : "bg-mint text-brand-dark",
+                iconTone === "danger" ? "bg-danger/14 text-danger ring-1 ring-danger/20" : "bg-brand/14 text-brand ring-1 ring-brand/20",
               )}
             >
               <Icon icon={icon} className="size-5" />
             </span>
           ) : null}
           <div className="min-w-0 flex-1">
-            <h3 id={titleId} className="text-base font-bold text-ink">
+            <h3 id={titleId} className="text-base font-bold text-white">
               {title}
             </h3>
             {description ? (
-              <p id={descriptionId} className="mt-0.5 text-sm text-muted">
+              <p id={descriptionId} className="mt-0.5 text-sm text-white/55">
                 {description}
               </p>
             ) : null}
@@ -135,18 +136,19 @@ export function Modal({
             onClick={onClose}
             disabled={isBusy}
             aria-label="Close"
-            className="grid size-8 shrink-0 place-items-center rounded-md text-muted transition-colors hover:bg-soft hover:text-ink disabled:opacity-50"
+            className="grid size-8 shrink-0 place-items-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-brand disabled:opacity-50"
           >
             <Icon icon="solar:close-circle-linear" className="size-5" />
           </button>
         </div>
 
-        <div className="px-4 py-4">{children}</div>
+        <div className="min-h-0 overflow-y-auto px-4 py-4 [scrollbar-width:thin]">{children}</div>
 
         {footer ? (
-          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line bg-soft px-4 py-3">{footer}</div>
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 bg-white/5 px-4 py-3">{footer}</div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

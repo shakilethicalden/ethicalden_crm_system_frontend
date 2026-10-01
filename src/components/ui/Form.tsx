@@ -13,10 +13,10 @@ type FieldProps = {
 
 export function Field({ label, hint, full, className, children }: FieldProps) {
   return (
-    <label className={cn("grid content-start gap-1.5 text-sm font-semibold text-ink", full && "col-span-full", className)}>
+    <label className={cn("grid content-start gap-1.5 text-sm font-semibold text-white", full && "col-span-full", className)}>
       <span>{label}</span>
       {children}
-      {hint ? <small className="text-xs font-medium text-muted">{hint}</small> : null}
+      {hint ? <small className="text-xs font-medium text-white/55">{hint}</small> : null}
     </label>
   );
 }
@@ -49,7 +49,7 @@ export function Input({ className, type, ...props }: ComponentProps<"input">) {
           type="button"
           disabled={props.disabled}
           onClick={() => setShowPassword((value) => !value)}
-          className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted transition-colors hover:bg-mint hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-brand focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={showPassword ? "Hide password" : "Show password"}
           title={showPassword ? "Hide password" : "Show password"}
         >
@@ -79,7 +79,7 @@ type CheckboxProps = Omit<ComponentProps<"input">, "type"> & { label: ReactNode 
 
 export function Checkbox({ label, className, ...props }: CheckboxProps) {
   return (
-    <label className={cn("inline-flex items-center gap-2 text-sm font-semibold text-ink", className)}>
+    <label className={cn("inline-flex items-center gap-2 text-sm font-semibold text-white", className)}>
       <input type="checkbox" className="size-4 accent-brand-dark" {...props} />
       <span>{label}</span>
     </label>

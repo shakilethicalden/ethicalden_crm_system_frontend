@@ -11,9 +11,9 @@ type AlertProps = {
 };
 
 const tones = {
-  error: { box: "border-danger/20 bg-danger-soft text-danger", icon: "solar:danger-circle-linear" },
-  success: { box: "border-success/20 bg-success-soft text-success", icon: "solar:check-circle-linear" },
-  info: { box: "border-brand-dark/20 bg-mint text-ink", icon: "solar:info-circle-linear" },
+  error: { box: "border-danger/25 bg-danger/12 text-danger", icon: "solar:danger-circle-linear" },
+  success: { box: "border-success/25 bg-success/12 text-success", icon: "solar:check-circle-linear" },
+  info: { box: "border-brand/25 bg-brand/12 text-brand", icon: "solar:info-circle-linear" },
 } as const;
 
 /** Inline status / error message. Renders nothing when `children` is empty. */
