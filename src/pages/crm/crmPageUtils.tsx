@@ -15,8 +15,8 @@ export function PageTitle({
   title: string;
   description: string;
   onRefresh: () => void;
-  onCreate: () => void;
-  createLabel: string;
+  onCreate?: () => void;
+  createLabel?: string;
   isRefreshing?: boolean;
 }) {
   return (
@@ -25,10 +25,12 @@ export function PageTitle({
         <Icon icon="solar:refresh-linear" className="size-4" />
         Refresh
       </Button>
-      <Button onClick={onCreate}>
-        <Icon icon="solar:add-circle-linear" className="size-4" />
-        {createLabel}
-      </Button>
+      {onCreate && createLabel ? (
+        <Button onClick={onCreate}>
+          <Icon icon="solar:add-circle-linear" className="size-4" />
+          {createLabel}
+        </Button>
+      ) : null}
     </CardHeader>
   );
 }

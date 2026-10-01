@@ -134,8 +134,10 @@ export function AppSidebar({ open, collapsed, onClose, onToggleCollapse }: AppSi
 }
 
 const PANEL_LABELS: Record<Role, string> = {
-  admin: "CRM Admin Panel",
-  employee: "CRM Employee Panel",
+  super_admin: "Super Admin CRM",
+  team_leader: "Team Leader CRM",
+  lead_generator: "Lead Generator CRM",
+  calling_agent: "Calling Agent CRM",
   unknown: "CRM Portal",
 };
 

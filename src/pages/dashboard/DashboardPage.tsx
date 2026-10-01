@@ -2,27 +2,27 @@ import { Link } from "react-router";
 import { Badge, Card, CardHeader, DashboardSkeleton, Icon, PageCard, type IconName } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
 import { useAsyncData } from "@/libs/hooks";
-import { employeeService, followUpService, leadService } from "@/libs/services";
+import { followUpService, leadService, memberService } from "@/libs/services";
 import { formatDateTime, formatNumber } from "@/libs/utils/format";
 
 const leadPriorityTone: Record<string, BadgeTone> = {
-  Low: "muted",
-  Medium: "brand",
-  High: "danger",
+  low: "muted",
+  medium: "brand",
+  high: "danger",
 };
 
 const followUpTone: Record<string, BadgeTone> = {
-  Pending: "brand",
-  Completed: "success",
-  Missed: "danger",
-  Cancelled: "muted",
+  upcoming: "brand",
+  completed: "success",
+  missed: "danger",
+  cancelled: "muted",
 };
 
 export default function DashboardPage() {
-  const { data: employees, isLoading: employeesLoading } = useAsyncData(
-    (_fresh, signal) => employeeService.list({ page: 1, page_size: 100 }, { signal }),
+  const { data: members, isLoading: membersLoading } = useAsyncData(
+    (_fresh, signal) => memberService.list({ page: 1, page_size: 100 }, { signal }),
     [],
-    { key: "dashboard-employees" },
+    { key: "dashboard-members" },
   );
   const { data: leads, isLoading: leadsLoading } = useAsyncData(
     (_fresh, signal) => leadService.list({ page: 1, page_size: 100, ordering: "-created_at" }, { signal }),
@@ -30,19 +30,19 @@ export default function DashboardPage() {
     { key: "dashboard-leads" },
   );
   const { data: followUps, isLoading: followUpsLoading } = useAsyncData(
-    (_fresh, signal) => followUpService.list({ page: 1, page_size: 100, ordering: "-scheduled_at" }, { signal }),
+    (_fresh, signal) => followUpService.list({ page: 1, page_size: 100, ordering: "due_at" }, { signal }),
     [],
     { key: "dashboard-follow-ups" },
   );
 
-  if (employeesLoading || leadsLoading || followUpsLoading) {
+  if (membersLoading || leadsLoading || followUpsLoading) {
     return <DashboardSkeleton />;
   }
 
   const leadRows = leads?.data ?? [];
   const followUpRows = followUps?.data ?? [];
-  const highPriorityLeads = leadRows.filter((lead) => lead.priority === "High").length;
-  const pendingFollowUps = followUpRows.filter((item) => item.status === "Pending").length;
+  const highPriorityLeads = leadRows.filter((lead) => lead.priority === "high").length;
+  const pendingFollowUps = followUpRows.filter((item) => item.status === "upcoming").length;
 
   return (
     <div className="grid gap-4">
@@ -50,14 +50,14 @@ export default function DashboardPage() {
         <CardHeader
           icon="solar:widget-5-bold-duotone"
           title="Ethical Den CRM"
-          description="A quick read on people, lead priority, and scheduled client activity."
+          description="A quick read on members, lead priority, assignments, and scheduled client activity."
         >
           <Badge tone="strong">Live CRM</Badge>
         </CardHeader>
       </PageCard>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon="solar:users-group-rounded-bold-duotone" label="Employees" value={formatNumber(employees?.count)} href="/employees" />
+        <MetricCard icon="solar:users-group-rounded-bold-duotone" label="Members" value={formatNumber(members?.count)} href="/members" />
         <MetricCard icon="solar:case-round-minimalistic-bold-duotone" label="Total Leads" value={formatNumber(leads?.count)} href="/leads" />
         <MetricCard icon="solar:danger-triangle-bold-duotone" label="High Priority Leads" value={formatNumber(highPriorityLeads)} href="/leads" />
         <MetricCard icon="solar:calendar-mark-bold-duotone" label="Pending Follow Ups" value={formatNumber(pendingFollowUps)} href="/follow-ups" />
@@ -70,8 +70,8 @@ export default function DashboardPage() {
             {leadRows.slice(0, 5).map((lead) => (
               <Link key={lead.id} to="/leads" className="flex items-center justify-between gap-3 rounded-md border border-line px-3 py-2 hover:bg-soft">
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-ink">{lead.name}</span>
-                  <span className="block truncate text-xs text-muted">{lead.company_name || lead.phone}</span>
+                  <span className="block truncate text-sm font-bold text-ink">{lead.business_name}</span>
+                  <span className="block truncate text-xs text-muted">{lead.contact_name || lead.phone}</span>
                 </span>
                 <Badge tone={leadPriorityTone[lead.priority] ?? "muted"}>{lead.priority}</Badge>
               </Link>
@@ -84,8 +84,8 @@ export default function DashboardPage() {
             {followUpRows.slice(0, 5).map((item) => (
               <Link key={item.id} to="/follow-ups" className="flex items-center justify-between gap-3 rounded-md border border-line px-3 py-2 hover:bg-soft">
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-ink">{item.lead_name ?? item.lead_details?.name ?? item.lead}</span>
-                  <span className="block truncate text-xs text-muted">{formatDateTime(item.scheduled_at)}</span>
+                  <span className="block truncate text-sm font-bold text-ink">{item.lead_detail?.business_name ?? item.lead}</span>
+                  <span className="block truncate text-xs text-muted">{formatDateTime(item.due_at ?? item.created_at)}</span>
                 </span>
                 <Badge tone={followUpTone[item.status] ?? "muted"}>{item.status}</Badge>
               </Link>

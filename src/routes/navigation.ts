@@ -1,5 +1,5 @@
 import { type IconName } from "@/components/ui";
-import { hasRole, STAFF, type Role } from "@/libs/auth/roles";
+import { ALL_ROLES, AUDIT_VIEWERS, EMPLOYEE_MANAGERS, hasRole, type Role } from "@/libs/auth/roles";
 
 export type NavNode = {
   label: string;
@@ -24,9 +24,30 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: "CRM",
     items: [
-      { label: "Employees", href: "/employees", icon: "solar:users-group-rounded-bold-duotone", roles: STAFF },
-      { label: "Lead Management", href: "/leads", icon: "solar:case-round-minimalistic-bold-duotone", roles: STAFF },
-      { label: "Follow Ups", href: "/follow-ups", icon: "solar:calendar-mark-bold-duotone", roles: STAFF },
+      { label: "Members", href: "/members", icon: "solar:users-group-rounded-bold-duotone", roles: EMPLOYEE_MANAGERS },
+      { label: "Teams", href: "/teams", icon: "solar:users-group-two-rounded-bold-duotone", roles: EMPLOYEE_MANAGERS },
+      {
+        label: "Countries & Region",
+        icon: "solar:global-bold-duotone",
+        roles: EMPLOYEE_MANAGERS,
+        children: [
+          { label: "Country", href: "/countries", icon: "solar:global-bold-duotone" },
+          { label: "Region", href: "/regions", icon: "solar:map-point-bold-duotone" },
+        ],
+      },
+      { label: "Services", href: "/services", icon: "solar:case-minimalistic-bold-duotone", roles: EMPLOYEE_MANAGERS },
+      { label: "Campaign", href: "/campaigns", icon: "solar:flag-bold-duotone", roles: EMPLOYEE_MANAGERS },
+      {
+        label: "Lead Management",
+        icon: "solar:case-round-minimalistic-bold-duotone",
+        roles: ALL_ROLES,
+        children: [
+          { label: "Leads", href: "/leads", icon: "solar:case-round-minimalistic-bold-duotone" },
+          { label: "Lead Assignment", href: "/lead-assignments", icon: "solar:user-check-rounded-bold-duotone" },
+          { label: "Followup", href: "/follow-ups", icon: "solar:calendar-mark-bold-duotone" },
+        ],
+      },
+      { label: "Audit Logs", href: "/activity-logs", icon: "solar:history-bold-duotone", roles: AUDIT_VIEWERS },
     ],
   },
 ];
@@ -62,7 +83,8 @@ export function getVisibleNavLinks(role: Role): Array<NavNode & { href: string; 
   return getVisibleNavSections(role).flatMap((section) => collect(section.items, section.title));
 }
 
-export function getNavLabel(item: NavNode, _role: Role) {
+export function getNavLabel(item: NavNode, role: Role) {
+  void role;
   return item.label;
 }
 
