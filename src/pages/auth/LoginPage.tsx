@@ -30,13 +30,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.92fr)_minmax(520px,0.72fr)] xl:grid-cols-[minmax(0,1fr)_minmax(580px,0.7fr)]">
-      <section className="relative hidden overflow-hidden bg-ink p-9 text-white lg:grid lg:content-between xl:p-14">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(rgba(134,206,71,0.13)_1px,transparent_1px),linear-gradient(90deg,rgba(134,206,71,0.13)_1px,transparent_1px)] bg-[size:48px_48px]"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(134,206,71,0.18))]" aria-hidden="true" />
+    <div className="relative grid min-h-screen overflow-hidden bg-portal text-white lg:grid-cols-[minmax(0,0.92fr)_minmax(520px,0.72fr)] xl:grid-cols-[minmax(0,1fr)_minmax(580px,0.7fr)]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(134,206,71,0.18))]" aria-hidden="true" />
+      <section className="relative hidden p-9 lg:grid lg:content-between xl:p-14">
 
         <div className="relative z-10">
           <img src="/edn_logo.png" alt="Ethical Den" className="h-14 w-auto object-contain" />
@@ -66,30 +62,30 @@ export default function LoginPage() {
         </div>
       </section>
 
-      <section className="grid content-center bg-white px-5 py-8 sm:px-10 xl:px-16">
-        <div className="mx-auto grid w-full max-w-[500px] gap-8">
+      <section className="relative grid content-center px-5 py-8 sm:px-10 xl:px-16">
+        <div className="mx-auto grid w-full max-w-[500px] gap-8 rounded-2xl border border-white/10 bg-white/7 p-6 shadow-2xl shadow-black/20 backdrop-blur sm:p-8">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl border border-line bg-white p-1.5">
+              <span className="grid size-11 place-items-center rounded-xl border border-brand/25 bg-white p-1.5">
                 <img src="/edn_icon.png" alt="" className="size-full object-contain" />
               </span>
               <span>
-                <span className="block text-lg font-extrabold text-ink">Ethical Den</span>
-                <span className="block text-xs font-semibold tracking-wide text-muted uppercase">CRM Workspace</span>
+                <span className="block text-lg font-extrabold text-white">Ethical Den</span>
+                <span className="block text-xs font-semibold tracking-wide text-white/55 uppercase">CRM Workspace</span>
               </span>
             </div>
           </div>
 
           <div className="grid gap-2">
-            <p className="text-xs font-bold tracking-[0.16em] text-brand-dark uppercase">Employee Portal</p>
-            <h2 id="login-title" className="text-3xl leading-tight font-black tracking-tight text-ink">
+            <p className="text-xs font-bold tracking-[0.16em] text-brand uppercase">Employee Portal</p>
+            <h2 id="login-title" className="text-3xl leading-tight font-black tracking-tight text-white">
               Sign in to CRM
             </h2>
-            <p className="text-sm leading-6 text-muted">Enter your employee credentials to continue.</p>
+            <p className="text-sm leading-6 text-white/58">Enter your employee credentials to continue.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="grid gap-4" aria-labelledby="login-title">
-            <Field label="Email address">
+            <Field label="Email address" className="text-white">
               <Input
                 type="email"
                 name="email"
@@ -97,12 +93,12 @@ export default function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="min-h-12 bg-field"
+                className="min-h-12"
                 required
               />
             </Field>
 
-            <Field label="Password">
+            <Field label="Password" className="text-white">
               <Input
                 type="password"
                 name="password"
@@ -110,7 +106,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="min-h-12 bg-field"
+                className="min-h-12"
                 required
               />
             </Field>
