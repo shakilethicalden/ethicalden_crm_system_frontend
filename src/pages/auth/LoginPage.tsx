@@ -38,14 +38,9 @@ export default function LoginPage() {
         />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(134,206,71,0.18))]" aria-hidden="true" />
 
-        <div className="relative z-10 flex items-center gap-3">
-          <span className="grid size-12 place-items-center rounded-xl border border-brand/40 bg-brand text-lg font-black text-ink">
-            ED
-          </span>
-          <span>
-            <span className="block text-lg font-extrabold">Ethical Den</span>
-            <span className="block text-xs font-semibold tracking-wide text-white/55 uppercase">CRM Workspace</span>
-          </span>
+        <div className="relative z-10">
+          <img src="/edn_logo.png" alt="Ethical Den" className="h-14 w-auto object-contain" />
+          <p className="mt-2 text-xs font-semibold tracking-wide text-white/55 uppercase">CRM Workspace</p>
         </div>
 
         <div className="relative z-10 max-w-3xl">
@@ -75,7 +70,9 @@ export default function LoginPage() {
         <div className="mx-auto grid w-full max-w-[500px] gap-8">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl bg-ink text-base font-black text-brand">ED</span>
+              <span className="grid size-11 place-items-center rounded-xl border border-line bg-white p-1.5">
+                <img src="/edn_icon.png" alt="" className="size-full object-contain" />
+              </span>
               <span>
                 <span className="block text-lg font-extrabold text-ink">Ethical Den</span>
                 <span className="block text-xs font-semibold tracking-wide text-muted uppercase">CRM Workspace</span>
@@ -126,17 +123,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="rounded-xl border border-line bg-soft p-4">
-            <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-mint text-brand-dark">
-                <Icon icon="solar:lock-keyhole-linear" className="size-5" />
-              </span>
-              <div>
-                <p className="text-sm font-bold text-ink">Protected CRM access</p>
-                <p className="mt-1 text-xs leading-5 text-muted">Sessions use bearer-token authentication from the Ethical Den API.</p>
-              </div>
-            </div>
-          </div>
+         
         </div>
       </section>
     </div>
