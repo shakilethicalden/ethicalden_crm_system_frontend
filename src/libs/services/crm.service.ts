@@ -75,7 +75,7 @@ export const teamService = crudService<Team, TeamPayload>("/teams/");
 export const countryService = {
   ...crudService<Country, CountryPayload>("/countries/"),
   bulkCreate(payload: CountryBulkPayload) {
-    return apiRequest<DetailResponse<Country[]>>("/countires/bulk-create/", { method: "POST", data: payload });
+    return apiRequest<DetailResponse<Country[]>>("/countries/bulk-create/", { method: "POST", data: payload });
   },
 };
 export const regionService = crudService<Region, RegionPayload>("/regions/");

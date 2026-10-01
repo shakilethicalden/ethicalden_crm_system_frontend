@@ -53,7 +53,33 @@
 
 @layer base {
   body {
-    @apply bg-portal font-sans text-ink antialiased;
+    @apply bg-portal font-sans text-white antialiased;
+  }
+
+  input,
+  select,
+  textarea {
+    color-scheme: dark;
+  }
+
+  select option,
+  select optgroup {
+    background-color: var(--color-portal);
+    color: #ffffff;
+  }
+
+  select option:checked {
+    background-color: rgba(140, 244, 72, 0.18);
+    color: #ffffff;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    caret-color: #ffffff;
+    box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset;
+    transition: background-color 9999s ease-out;
   }
 
   button:not(:disabled) {

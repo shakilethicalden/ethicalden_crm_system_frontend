@@ -63,7 +63,7 @@ export function Input({ className, type, ...props }: ComponentProps<"input">) {
 }
 
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select className={cn(fieldControlClass, "min-h-10", className)} {...props} />;
+  return <select className={cn(fieldControlClass, "min-h-10 [&_optgroup]:bg-portal [&_optgroup]:text-white [&_option]:bg-portal [&_option]:text-white", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: ComponentProps<"textarea">) {

@@ -144,7 +144,7 @@ const PANEL_LABELS: Record<Role, string> = {
 function SidebarLogo({ collapsed, role }: { collapsed: boolean; role: Role }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="grid size-9 flex-none place-items-center rounded-lg border border-brand/35 bg-white p-1 shadow-sm">
+      <span className="grid size-9 flex-none place-items-center rounded-lg border border-brand/35 bg-white/10 p-1 shadow-sm">
         <img src="/edn_icon.png" alt="" className="size-full object-contain" />
       </span>
       <span className={cn("leading-tight transition-opacity duration-200", collapsed && "pointer-events-none lg:hidden")}>
