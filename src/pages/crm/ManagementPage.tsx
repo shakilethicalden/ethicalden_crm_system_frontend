@@ -37,13 +37,15 @@ import { formatDate, formatDateTime, formatStatus } from "@/libs/utils/format";
 import { CrmPage, DeleteDialog, DetailGrid, DetailItem, DetailModal, FormModal, PageTitle, RowButtons } from "./crmPageUtils";
 
 export type ResourceKey = "users" | "members" | "teams" | "countries" | "regions" | "services" | "campaigns" | "audit";
-type Option = { value: string; label: string };
+type Option = { value: string; label: string; parent?: string };
 type FieldKind = "text" | "email" | "number" | "date" | "textarea" | "select" | "multi" | "checkbox" | "json";
 type FormField = {
   name: string;
   label: string;
   kind?: FieldKind;
   options?: Option[];
+  filterBy?: string;
+  clears?: string[];
   required?: boolean;
   full?: boolean;
 };
@@ -114,7 +116,11 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
   const memberOptions = (members.data?.data ?? []).map((member) => ({ value: member.id, label: memberName(member) }));
   const teamOptions = (teams.data?.data ?? []).map((team) => ({ value: team.id, label: team.name }));
   const countryOptions = (countries.data?.data ?? []).map((country) => ({ value: country.id, label: country.name }));
-  const regionOptions = (regions.data?.data ?? []).map((region) => ({ value: region.id, label: `${region.name} (${region.country_detail?.name ?? region.country})` }));
+  const regionOptions = (regions.data?.data ?? []).map((region) => ({
+    value: region.id,
+    label: `${region.name} (${region.country_detail?.name ?? region.country})`,
+    parent: region.country,
+  }));
   const serviceOptions = (services.data?.data ?? []).map((service) => ({ value: service.id, label: service.name }));
 
   const configs = useMemo<LooseResourceConfig[]>(
@@ -312,8 +318,12 @@ function DynamicFields<T extends Record<string, unknown>>({
     <FormGrid>
       {fields.map((field) => {
         const current = value[field.name];
-        const patch = (next: unknown) => setValue({ [field.name]: next } as Partial<T>);
-        const options = field.options ?? [];
+        const patch = (next: unknown) => {
+          const cleared = Object.fromEntries((field.clears ?? []).map((name) => [name, ""]));
+          setValue({ ...cleared, [field.name]: next } as Partial<T>);
+        };
+        const parentValue = field.filterBy ? String(value[field.filterBy] ?? "") : "";
+        const options = field.filterBy && parentValue ? (field.options ?? []).filter((option) => option.parent === parentValue) : (field.options ?? []);
 
         if (field.kind === "textarea") {
           return (
@@ -595,8 +605,8 @@ function campaignsConfig(serviceOptions: Option[], countryOptions: Option[], reg
     fields: [
       { name: "name", label: "Name", required: true },
       { name: "service", label: "Service", kind: "select", options: serviceOptions, required: true },
-      { name: "country", label: "Country", kind: "select", options: countryOptions, required: true },
-      { name: "region", label: "Region", kind: "select", options: regionOptions, required: true },
+      { name: "country", label: "Country", kind: "select", options: countryOptions, clears: ["region"], required: true },
+      { name: "region", label: "Region", kind: "select", options: regionOptions, filterBy: "country", required: true },
       { name: "industry", label: "Industry", required: true },
       { name: "status", label: "Status", kind: "select", options: campaignStatuses.map((status) => ({ value: status, label: formatStatus(status) })), required: true },
       { name: "assigned_team", label: "Assigned team", kind: "select", options: teamOptions, required: true },
