@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Badge, Checkbox, DataTable, Field, FormGrid, Icon, IconButton, Input, Select, Textarea } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
 import type { CrmFollowUpPayload, CrmLead, CrmLeadPayload, FollowUpStatus, LeadPriority, LeadSource, LeadStatus } from "@/libs/api/types";
+import { hasRole, LEAD_CREATORS, useAuth } from "@/libs/auth";
 import { useAsyncData } from "@/libs/hooks";
 import { campaignService, countryService, followUpService, leadService, memberService, regionService } from "@/libs/services";
 import { formatDateTime, formatStatus } from "@/libs/utils/format";
@@ -103,6 +104,8 @@ function followUpInitial(lead: CrmLead): CrmFollowUpPayload {
 }
 
 export default function LeadsPage() {
+  const { role } = useAuth();
+  const canCreateLead = hasRole(role, LEAD_CREATORS);
   const [viewing, setViewing] = useState<CrmLead | null>(null);
   const [editing, setEditing] = useState<CrmLead | null>(null);
   const [followUpLead, setFollowUpLead] = useState<CrmLead | null>(null);
@@ -139,8 +142,8 @@ export default function LeadsPage() {
         description="Create, assign, prioritize, archive, and follow up leads from campaigns."
         onRefresh={() => void reload()}
         isRefreshing={isRefreshing}
-        onCreate={() => setEditing({ id: "", ...emptyLead } as CrmLead)}
-        createLabel="New Lead"
+        onCreate={canCreateLead ? () => setEditing({ id: "", ...emptyLead } as CrmLead) : undefined}
+        createLabel={canCreateLead ? "New Lead" : undefined}
       />
       <DataTable
         rows={data?.data ?? []}

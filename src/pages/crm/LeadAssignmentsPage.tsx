@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Badge, DataTable, Field, FormGrid, Icon, IconButton, Select, Textarea } from "@/components/ui";
-import type { LeadAssignment, LeadAssignmentPayload } from "@/libs/api/types";
+import type { CrmFollowUpPayload, FollowUpStatus, LeadAssignment, LeadAssignmentPayload } from "@/libs/api/types";
+import { ASSIGNMENT_VIEWERS, hasRole, useAuth } from "@/libs/auth";
 import { useAsyncData } from "@/libs/hooks";
-import { leadAssignmentService, leadService, memberService } from "@/libs/services";
+import { followUpService, leadAssignmentService, leadService, memberService } from "@/libs/services";
 import { formatDateTime } from "@/libs/utils/format";
-import { CrmPage, DeleteDialog, DetailGrid, DetailItem, DetailModal, FormModal, PageTitle, RowButtons } from "./crmPageUtils";
+import { CrmPage, DeleteDialog, DetailGrid, DetailItem, DetailModal, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
 
 const emptyAssignment: LeadAssignmentPayload = { lead: "", assigned_to: "", active: true, remarks: "" };
+const followUpStatuses: FollowUpStatus[] = ["upcoming", "completed", "missed", "cancelled"];
 
 function memberLabel(user?: LeadAssignment["assigned_to_detail"]) {
   return user?.name ?? user?.user_detail?.email ?? "N/A";
@@ -22,9 +24,23 @@ function initial(row: LeadAssignment | null): LeadAssignmentPayload {
   };
 }
 
+function followUpInitial(row: LeadAssignment): CrmFollowUpPayload {
+  return {
+    lead: row.lead,
+    due_at: "",
+    reason: "Second call",
+    notes: "",
+    status: "upcoming",
+  };
+}
+
 export default function LeadAssignmentsPage() {
+  const { role } = useAuth();
+  const canManageAssignments = hasRole(role, ASSIGNMENT_VIEWERS);
+  const canCreateFollowup = role !== "lead_generator";
   const [viewing, setViewing] = useState<LeadAssignment | null>(null);
   const [editing, setEditing] = useState<LeadAssignment | null>(null);
+  const [followUpAssignment, setFollowUpAssignment] = useState<LeadAssignment | null>(null);
   const [deleting, setDeleting] = useState<LeadAssignment | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { data, error, isLoading, isRefreshing, reload } = useAsyncData(
@@ -51,8 +67,8 @@ export default function LeadAssignmentsPage() {
         description="Assign leads to calling agents and track active assignment history."
         onRefresh={() => void reload()}
         isRefreshing={isRefreshing}
-        onCreate={() => setEditing({ id: "", ...emptyAssignment } as LeadAssignment)}
-        createLabel="New Assignment"
+        onCreate={canManageAssignments ? () => setEditing({ id: "", ...emptyAssignment } as LeadAssignment) : undefined}
+        createLabel={canManageAssignments ? "New Assignment" : undefined}
       />
       <DataTable
         rows={data?.data ?? []}
@@ -89,7 +105,12 @@ export default function LeadAssignmentsPage() {
             <IconButton label="View assignment" onClick={() => setViewing(row)}>
               <Icon icon="solar:eye-linear" className="size-4" />
             </IconButton>
-            <RowButtons onEdit={() => setEditing(row)} onDelete={() => setDeleting(row)} />
+            {canCreateFollowup ? (
+              <IconButton label="Create followup" onClick={() => setFollowUpAssignment(row)}>
+                <Icon icon="solar:calendar-add-linear" className="size-4" />
+              </IconButton>
+            ) : null}
+            {canManageAssignments ? <RowButtons onEdit={() => setEditing(row)} onDelete={() => setDeleting(row)} /> : null}
           </div>
         )}
         searchPlaceholder="Search assignments"
@@ -157,6 +178,60 @@ export default function LeadAssignmentsPage() {
               </Field>
               <Field label="Remarks" full>
                 <Textarea value={value.remarks ?? ""} onChange={(event) => setValue({ remarks: event.target.value })} />
+              </Field>
+            </FormGrid>
+          )}
+        </FormModal>
+      ) : null}
+      {followUpAssignment ? (
+        <FormModal
+          key={followUpAssignment.id}
+          title="Create followup"
+          description={`Schedule followup for ${followUpAssignment.lead_detail?.business_name ?? followUpAssignment.lead}.`}
+          icon="solar:calendar-mark-bold-duotone"
+          isOpen
+          initial={followUpInitial(followUpAssignment)}
+          onClose={() => setFollowUpAssignment(null)}
+          onSubmit={async (value) => {
+            await followUpService.create({
+              ...value,
+              due_at: fromInputDateTime(value.due_at) ?? value.due_at,
+              reason: value.reason.trim(),
+              notes: value.notes.trim(),
+            });
+            void reload();
+          }}
+        >
+          {(value, setValue) => (
+            <FormGrid>
+              <Field label="Lead">
+                <Select value={value.lead} onChange={(event) => setValue({ lead: event.target.value })} required disabled>
+                  <option value={followUpAssignment.lead}>{followUpAssignment.lead_detail?.business_name ?? followUpAssignment.lead}</option>
+                </Select>
+              </Field>
+              <Field label="Due at">
+                <input
+                  type="datetime-local"
+                  value={toInputDateTime(value.due_at)}
+                  onChange={(event) => setValue({ due_at: event.target.value })}
+                  required
+                  className="min-h-10 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-dark focus:ring-2 focus:ring-brand/25"
+                />
+              </Field>
+              <Field label="Status">
+                <Select value={value.status} onChange={(event) => setValue({ status: event.target.value })}>
+                  {followUpStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status.replace("_", " ")}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Reason">
+                <Textarea value={value.reason} onChange={(event) => setValue({ reason: event.target.value })} required />
+              </Field>
+              <Field label="Notes" full>
+                <Textarea value={value.notes} onChange={(event) => setValue({ notes: event.target.value })} />
               </Field>
             </FormGrid>
           )}
