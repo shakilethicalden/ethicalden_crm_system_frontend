@@ -1,125 +1,106 @@
 import { useMemo, useState } from "react";
-import { Badge, DataTable, Field, FormGrid, Icon, IconButton, Input, Select, Textarea } from "@/components/ui";
+import { Badge, Checkbox, DataTable, Field, FormGrid, Icon, IconButton, Input, Select, Textarea } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
-import type {
-  CrmFollowUpPayload,
-  CrmLead,
-  CrmLeadPayload,
-  FollowUpStatus,
-  FollowUpType,
-  LeadPriority,
-  LeadSource,
-} from "@/libs/api/types";
+import type { CrmFollowUpPayload, CrmLead, CrmLeadPayload, FollowUpStatus, LeadPriority, LeadSource, LeadStatus } from "@/libs/api/types";
 import { useAsyncData } from "@/libs/hooks";
-import { followUpService, leadService } from "@/libs/services";
-import { formatDateTime } from "@/libs/utils/format";
-import {
-  CrmPage,
-  DeleteDialog,
-  DetailGrid,
-  DetailItem,
-  DetailModal,
-  FormModal,
-  fromInputDateTime,
-  PageTitle,
-  RowButtons,
-  toInputDateTime,
-} from "./crmPageUtils";
+import { campaignService, countryService, followUpService, leadService, memberService, regionService } from "@/libs/services";
+import { formatDateTime, formatStatus } from "@/libs/utils/format";
+import { CrmPage, DeleteDialog, DetailGrid, DetailItem, DetailModal, FormModal, fromInputDateTime, PageTitle, RowButtons, toInputDateTime } from "./crmPageUtils";
 
-const sourceOptions: LeadSource[] = ["Website", "Facebook", "Referral", "Phone", "Email", "Other"];
-const priorityOptions: LeadPriority[] = ["Low", "Medium", "High"];
-const followUpTypeOptions: FollowUpType[] = ["Call", "Email", "Meeting", "Message", "Other"];
-const followUpStatusOptions: FollowUpStatus[] = ["Pending", "Completed", "Missed", "Cancelled"];
-const countryOptions = ["India", "USA", "Canada"] as const;
-
-const stateOptions: Record<(typeof countryOptions)[number], string[]> = {
-  India: [],
-  USA: [
-    "Alabama",
-    "Alaska",
-    "Arizona",
-    "Arkansas",
-    "California",
-    "Colorado",
-    "Connecticut",
-    "Delaware",
-    "Florida",
-    "Georgia",
-    "Hawaii",
-    "Idaho",
-    "Illinois",
-    "Indiana",
-    "Iowa",
-    "Kansas",
-    "Kentucky",
-    "Louisiana",
-    "Maine",
-    "Maryland",
-    "Massachusetts",
-    "Michigan",
-    "Minnesota",
-    "Mississippi",
-    "Missouri",
-    "Montana",
-    "Nebraska",
-    "Nevada",
-    "New Hampshire",
-    "New Jersey",
-    "New Mexico",
-    "New York",
-    "North Carolina",
-    "North Dakota",
-    "Ohio",
-    "Oklahoma",
-    "Oregon",
-    "Pennsylvania",
-    "Rhode Island",
-    "South Carolina",
-    "South Dakota",
-    "Tennessee",
-    "Texas",
-    "Utah",
-    "Vermont",
-    "Virginia",
-    "Washington",
-    "West Virginia",
-    "Wisconsin",
-    "Wyoming",
-  ],
-  Canada: [
-    "Alberta",
-    "British Columbia",
-    "Manitoba",
-    "New Brunswick",
-    "Newfoundland and Labrador",
-    "Northwest Territories",
-    "Nova Scotia",
-    "Nunavut",
-    "Ontario",
-    "Prince Edward Island",
-    "Quebec",
-    "Saskatchewan",
-    "Yukon",
-  ],
-};
+const sourceOptions: LeadSource[] = ["website", "facebook", "google", "linkedin", "referral", "cold_call", "other"];
+const statusOptions: LeadStatus[] = ["new", "assigned", "in_progress", "contacted", "qualified", "converted", "lost"];
+const priorityOptions: LeadPriority[] = ["low", "medium", "high"];
+const followUpStatusOptions: FollowUpStatus[] = ["upcoming", "completed", "missed", "cancelled"];
 
 const emptyLead: CrmLeadPayload = {
-  name: "",
-  company_name: "",
-  email: "",
+  business_name: "",
+  contact_name: "",
   phone: "",
-  country: "India",
+  alternative_phone: "",
+  email: "",
+  website: "",
+  country: "",
+  region: "",
   address: "",
-  source: "Website",
-  priority: "Medium",
-  description: "",
+  source: "website",
+  priority: "medium",
+  notes: "",
+  generator: "",
+  campaign: "",
+  assigned_agent: null,
+  status: "new",
+  is_archived: false,
 };
 
-const priorityTone: Record<LeadPriority, BadgeTone> = {
-  Low: "muted",
-  Medium: "brand",
-  High: "danger",
+const priorityTone: Record<string, BadgeTone> = { low: "muted", medium: "brand", high: "danger" };
+const statusTone: Record<string, BadgeTone> = {
+  new: "brand",
+  assigned: "strong",
+  in_progress: "strong",
+  contacted: "brand",
+  qualified: "success",
+  converted: "success",
+  lost: "danger",
 };
+
+function memberName(member?: CrmLead["assigned_agent_detail"] | CrmLead["generator_detail"]) {
+  return member?.name ?? member?.user_detail?.email ?? "N/A";
+}
+
+function leadInitial(lead: CrmLead | null): CrmLeadPayload {
+  if (!lead?.id) return emptyLead;
+  return {
+    business_name: lead.business_name,
+    contact_name: lead.contact_name,
+    phone: lead.phone,
+    alternative_phone: lead.alternative_phone ?? "",
+    email: lead.email ?? "",
+    website: lead.website ?? "",
+    country: lead.country,
+    region: lead.region,
+    address: lead.address,
+    source: lead.source,
+    priority: lead.priority,
+    notes: lead.notes,
+    generator: lead.generator,
+    campaign: lead.campaign,
+    assigned_agent: lead.assigned_agent,
+    status: lead.status,
+    is_archived: lead.is_archived,
+  };
+}
+
+function cleanLeadPayload(payload: CrmLeadPayload): CrmLeadPayload {
+  return {
+    business_name: payload.business_name.trim(),
+    contact_name: payload.contact_name.trim(),
+    phone: payload.phone.trim(),
+    alternative_phone: payload.alternative_phone?.trim() || "",
+    email: payload.email?.trim() || "",
+    website: payload.website?.trim() || "",
+    country: payload.country,
+    region: payload.region,
+    address: payload.address.trim(),
+    source: payload.source,
+    priority: payload.priority,
+    notes: payload.notes.trim(),
+    generator: payload.generator || undefined,
+    campaign: payload.campaign,
+    assigned_agent: payload.assigned_agent || null,
+    status: payload.status,
+    is_archived: Boolean(payload.is_archived),
+  };
+}
+
+function followUpInitial(lead: CrmLead): CrmFollowUpPayload {
+  return {
+    lead: lead.id,
+    due_at: "",
+    reason: "Second call",
+    notes: "",
+    status: "upcoming",
+  };
+}
 
 export default function LeadsPage() {
   const [viewing, setViewing] = useState<CrmLead | null>(null);
@@ -128,13 +109,20 @@ export default function LeadsPage() {
   const [deleting, setDeleting] = useState<CrmLead | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [priority, setPriority] = useState("");
+  const [status, setStatus] = useState("");
+  const [archived, setArchived] = useState("false");
 
-  const leadQuery = useMemo(() => ({ page: 1, page_size: 100, ordering: "-created_at", priority }), [priority]);
+  const leadQuery = useMemo(() => ({ page: 1, page_size: 100, ordering: "-generated_at", priority, status, is_archived: archived }), [priority, status, archived]);
   const { data, error, isLoading, isRefreshing, reload } = useAsyncData(
     (fresh, signal) => leadService.list(leadQuery, { cache: fresh ? "no-store" : "default", signal }),
     [leadQuery],
-    { key: `crm-leads:${priority}` },
+    { key: `crm-leads:${priority}:${status}:${archived}` },
   );
+  const { data: members } = useAsyncData((_fresh, signal) => memberService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-members" });
+  const { data: countries } = useAsyncData((_fresh, signal) => countryService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-countries" });
+  const { data: regions } = useAsyncData((_fresh, signal) => regionService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-regions" });
+  const { data: campaigns } = useAsyncData((_fresh, signal) => campaignService.list({ page: 1, page_size: 100, ordering: "name" }, { signal }), [], { key: "lead-campaigns" });
+
   async function removeLead() {
     if (!deleting) return;
     setIsDeleting(true);
@@ -143,116 +131,91 @@ export default function LeadsPage() {
     void reload();
   }
 
-  function leadInitial(lead: CrmLead | null): CrmLeadPayload {
-    if (!lead?.id) return emptyLead;
-    const country = countryOptions.includes(lead.country as (typeof countryOptions)[number])
-      ? (lead.country as (typeof countryOptions)[number])
-      : "India";
-
-    return {
-      name: lead.name,
-      company_name: lead.company_name,
-      email: lead.email,
-      phone: lead.phone,
-      country,
-      state: stateOptions[country].includes(lead.state ?? "") ? (lead.state ?? "") : undefined,
-      address: lead.address,
-      source: lead.source,
-      priority: lead.priority,
-      description: lead.description,
-    };
-  }
-
-  function cleanLeadPayload(payload: CrmLeadPayload): CrmLeadPayload {
-    return {
-      ...payload,
-      country: payload.country || "India",
-      state: payload.country === "India" ? undefined : payload.state?.trim() || undefined,
-    };
-  }
-
-  function followUpInitial(lead: CrmLead): CrmFollowUpPayload {
-    return {
-      lead: lead.id,
-      follow_up_type: "Call",
-      status: "Pending",
-      scheduled_at: toInputDateTime(new Date().toISOString()),
-      completed_at: null,
-      note: "",
-      next_follow_up_at: null,
-    };
-  }
-
   return (
     <CrmPage>
       <PageTitle
         icon="solar:case-round-minimalistic-bold-duotone"
         title="Lead Management"
-        description="Track client prospects, source, priority, and contact details."
+        description="Create, assign, prioritize, archive, and follow up leads from campaigns."
         onRefresh={() => void reload()}
         isRefreshing={isRefreshing}
-        onCreate={() => setEditing({ id: "", ...emptyLead, state: null, created_at: "" })}
+        onCreate={() => setEditing({ id: "", ...emptyLead } as CrmLead)}
         createLabel="New Lead"
       />
       <DataTable
         rows={data?.data ?? []}
         isLoading={isLoading}
         filters={
-          <Select value={priority} onChange={(event) => setPriority(event.target.value)} className="h-8 text-xs">
-            <option value="">All priorities</option>
-            {priorityOptions.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </Select>
+          <>
+            <Select value={status} onChange={(event) => setStatus(event.target.value)} className="h-8 text-xs">
+              <option value="">All statuses</option>
+              {statusOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}
+            </Select>
+            <Select value={priority} onChange={(event) => setPriority(event.target.value)} className="h-8 text-xs">
+              <option value="">All priorities</option>
+              {priorityOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}
+            </Select>
+            <Select value={archived} onChange={(event) => setArchived(event.target.value)} className="h-8 text-xs">
+              <option value="false">Active leads</option>
+              <option value="true">Archived leads</option>
+              <option value="">All archive states</option>
+            </Select>
+          </>
         }
         columns={[
-          { key: "name", label: "Lead", sortable: true, render: (row) => <div><p className="font-bold text-ink">{row.name}</p><p className="text-xs text-muted">{row.company_name || row.email}</p></div> },
-          { key: "phone", label: "Phone" },
-          { key: "source", label: "Source" },
-          { key: "priority", label: "Priority", render: (row) => <Badge tone={priorityTone[row.priority]}>{row.priority}</Badge> },
-          { key: "country", label: "Country", render: (row) => row.country || "N/A" },
-          { key: "state", label: "State", render: (row) => row.state || "N/A" },
-          { key: "created_at", label: "Created", render: (row) => formatDateTime(row.created_at), sortable: true },
+          {
+            key: "business_name",
+            label: "Business",
+            sortable: true,
+            render: (row) => (
+              <div>
+                <p className="font-bold text-ink">{row.business_name}</p>
+                <p className="text-xs text-muted">{row.contact_name || row.email || row.phone}</p>
+              </div>
+            ),
+          },
+          { key: "phone", label: "Phone", sortable: true },
+          { key: "campaign", label: "Campaign", render: (row) => row.campaign_detail?.name ?? row.campaign },
+          { key: "status", label: "Status", render: (row) => <Badge tone={statusTone[row.status] ?? "muted"}>{formatStatus(row.status)}</Badge> },
+          { key: "priority", label: "Priority", render: (row) => <Badge tone={priorityTone[row.priority] ?? "muted"}>{formatStatus(row.priority)}</Badge> },
+          { key: "assigned_agent", label: "Agent", render: (row) => memberName(row.assigned_agent_detail) },
+          { key: "country", label: "Region", render: (row) => `${row.country_name ?? row.country} / ${row.region_name ?? row.region}` },
+          { key: "generated_at", label: "Generated", render: (row) => formatDateTime(row.generated_at ?? row.created_at), sortable: true },
         ]}
         getRowId={(row) => row.id}
         renderActions={(row) => (
           <div className="flex items-center gap-1.5">
-            <IconButton label={`View ${row.name}`} onClick={() => setViewing(row)}>
-              <Icon icon="solar:eye-linear" className="size-4" />
-            </IconButton>
-            <IconButton label={`Create follow up for ${row.name}`} onClick={() => setFollowUpLead(row)}>
-              <Icon icon="solar:calendar-add-linear" className="size-4" />
-            </IconButton>
+            <IconButton label="View lead" onClick={() => setViewing(row)}><Icon icon="solar:eye-linear" className="size-4" /></IconButton>
+            <IconButton label="Create followup" onClick={() => setFollowUpLead(row)}><Icon icon="solar:calendar-add-linear" className="size-4" /></IconButton>
             <RowButtons onEdit={() => setEditing(row)} onDelete={() => setDeleting(row)} />
           </div>
         )}
         searchPlaceholder="Search leads"
-        searchText={(row) => `${row.name} ${row.company_name} ${row.email} ${row.phone} ${row.source} ${row.priority}`}
+        searchText={(row) => `${row.business_name} ${row.contact_name} ${row.email ?? ""} ${row.phone} ${row.source} ${row.status} ${row.priority} ${memberName(row.assigned_agent_detail)}`}
         noun="leads"
-        minWidth={860}
+        minWidth={1240}
         emptyText={error || "No leads found."}
       />
       {viewing ? (
-        <DetailModal
-          title={viewing.name}
-          description={viewing.company_name || "Lead details"}
-          icon="solar:case-round-minimalistic-bold-duotone"
-          isOpen
-          onClose={() => setViewing(null)}
-        >
+        <DetailModal title={viewing.business_name} description={viewing.contact_name || viewing.phone} icon="solar:case-round-minimalistic-bold-duotone" isOpen onClose={() => setViewing(null)}>
           <DetailGrid>
-            <DetailItem label="Name" value={viewing.name} />
-            <DetailItem label="Company" value={viewing.company_name} />
-            <DetailItem label="Email" value={viewing.email} />
+            <DetailItem label="Contact" value={viewing.contact_name} />
             <DetailItem label="Phone" value={viewing.phone} />
-            <DetailItem label="Source" value={viewing.source} />
-            <DetailItem label="Priority" value={<Badge tone={priorityTone[viewing.priority]}>{viewing.priority}</Badge>} />
-            <DetailItem label="Country" value={viewing.country} />
-            <DetailItem label="State" value={viewing.state} />
-            <DetailItem label="Created" value={formatDateTime(viewing.created_at)} />
-            <DetailItem label="Updated" value={formatDateTime(viewing.updated_at)} />
+            <DetailItem label="Alternative phone" value={viewing.alternative_phone} />
+            <DetailItem label="Email" value={viewing.email} />
+            <DetailItem label="Website" value={viewing.website} />
+            <DetailItem label="Source" value={formatStatus(viewing.source)} />
+            <DetailItem label="Status" value={<Badge tone={statusTone[viewing.status] ?? "muted"}>{formatStatus(viewing.status)}</Badge>} />
+            <DetailItem label="Priority" value={<Badge tone={priorityTone[viewing.priority] ?? "muted"}>{formatStatus(viewing.priority)}</Badge>} />
+            <DetailItem label="Campaign" value={viewing.campaign_detail?.name ?? viewing.campaign} />
+            <DetailItem label="Generator" value={memberName(viewing.generator_detail)} />
+            <DetailItem label="Assigned agent" value={memberName(viewing.assigned_agent_detail)} />
+            <DetailItem label="Country / Region" value={`${viewing.country_name ?? viewing.country} / ${viewing.region_name ?? viewing.region}`} />
+            <DetailItem label="Archived" value={viewing.is_archived ? "Yes" : "No"} />
+            <DetailItem label="In progress by" value={memberName(viewing.in_progress_by_detail)} />
+            <DetailItem label="In progress at" value={formatDateTime(viewing.in_progress_at)} />
             <DetailItem label="Address" value={viewing.address} full />
-            <DetailItem label="Description" value={viewing.description} full />
+            <DetailItem label="Notes" value={viewing.notes} full />
           </DetailGrid>
         </DetailModal>
       ) : null}
@@ -260,76 +223,62 @@ export default function LeadsPage() {
         <FormModal
           key={editing.id || "new"}
           title={editing.id ? "Edit lead" : "Create lead"}
-          description="Capture pipeline details from the CRM API documentation."
+          description="Lead fields match the current CRM API contract."
           icon="solar:case-round-minimalistic-bold-duotone"
           isOpen
           initial={leadInitial(editing)}
           onClose={() => setEditing(null)}
           onSubmit={async (payload) => {
             const cleanPayload = cleanLeadPayload(payload);
-            if (editing.id) await leadService.update(editing.id, cleanPayload);
+            if (editing.id) await leadService.patch(editing.id, cleanPayload);
             else await leadService.create(cleanPayload);
             void reload();
           }}
         >
           {(value, setValue) => (
             <FormGrid>
-              <Field label="Client name">
-                <Input value={value.name} onChange={(event) => setValue({ name: event.target.value })} required />
-              </Field>
-              <Field label="Company">
-                <Input value={value.company_name} onChange={(event) => setValue({ company_name: event.target.value })} />
-              </Field>
-              <Field label="Email">
-                <Input type="email" value={value.email} onChange={(event) => setValue({ email: event.target.value })} />
-              </Field>
-              <Field label="Phone">
-                <Input value={value.phone} onChange={(event) => setValue({ phone: event.target.value })} required />
-              </Field>
-              <Field label="Source">
-                <Select value={value.source} onChange={(event) => setValue({ source: event.target.value as LeadSource })}>
-                  {sourceOptions.map((item) => <option key={item}>{item}</option>)}
-                </Select>
-              </Field>
-              <Field label="Priority">
-                <Select value={value.priority} onChange={(event) => setValue({ priority: event.target.value as LeadPriority })}>
-                  {priorityOptions.map((item) => <option key={item}>{item}</option>)}
-                </Select>
-              </Field>
+              <Field label="Business name"><Input value={value.business_name} onChange={(event) => setValue({ business_name: event.target.value })} required /></Field>
+              <Field label="Contact name"><Input value={value.contact_name} onChange={(event) => setValue({ contact_name: event.target.value })} required /></Field>
+              <Field label="Phone"><Input value={value.phone} onChange={(event) => setValue({ phone: event.target.value })} required /></Field>
+              <Field label="Alternative phone"><Input value={value.alternative_phone ?? ""} onChange={(event) => setValue({ alternative_phone: event.target.value })} /></Field>
+              <Field label="Email"><Input type="email" value={value.email ?? ""} onChange={(event) => setValue({ email: event.target.value })} /></Field>
+              <Field label="Website"><Input value={value.website ?? ""} onChange={(event) => setValue({ website: event.target.value })} /></Field>
               <Field label="Country">
-                <Select
-                  value={value.country}
-                  onChange={(event) => {
-                    const country = event.target.value as (typeof countryOptions)[number];
-                    setValue({ country, state: undefined });
-                  }}
-                  required
-                >
-                  {countryOptions.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
+                <Select value={value.country} onChange={(event) => setValue({ country: event.target.value, region: "" })} required>
+                  <option value="">Select country</option>
+                  {(countries?.data ?? []).map((country) => <option key={country.id} value={country.id}>{country.name}</option>)}
                 </Select>
               </Field>
-              {value.country !== "India" ? (
-                <Field label="State">
-                  <Select value={value.state ?? ""} onChange={(event) => setValue({ state: event.target.value || undefined })} required>
-                    <option value="">Select state</option>
-                    {stateOptions[value.country as (typeof countryOptions)[number]].map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-              ) : null}
-              <Field label="Address">
-                <Input value={value.address} onChange={(event) => setValue({ address: event.target.value })} />
+              <Field label="Region">
+                <Select value={value.region} onChange={(event) => setValue({ region: event.target.value })} required>
+                  <option value="">Select region</option>
+                  {(regions?.data ?? []).filter((region) => !value.country || region.country === value.country).map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}
+                </Select>
               </Field>
-              <Field label="Description" full>
-                <Textarea value={value.description} onChange={(event) => setValue({ description: event.target.value })} />
+              <Field label="Campaign">
+                <Select value={value.campaign} onChange={(event) => setValue({ campaign: event.target.value })} required>
+                  <option value="">Select campaign</option>
+                  {(campaigns?.data ?? []).map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
+                </Select>
               </Field>
+              <Field label="Generator">
+                <Select value={value.generator ?? ""} onChange={(event) => setValue({ generator: event.target.value || undefined })}>
+                  <option value="">Backend default</option>
+                  {(members?.data ?? []).map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
+                </Select>
+              </Field>
+              <Field label="Assigned agent">
+                <Select value={value.assigned_agent ?? ""} onChange={(event) => setValue({ assigned_agent: event.target.value || null })}>
+                  <option value="">Unassigned</option>
+                  {(members?.data ?? []).map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
+                </Select>
+              </Field>
+              <Field label="Source"><Select value={value.source} onChange={(event) => setValue({ source: event.target.value })}>{sourceOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}</Select></Field>
+              <Field label="Priority"><Select value={value.priority} onChange={(event) => setValue({ priority: event.target.value })}>{priorityOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}</Select></Field>
+              <Field label="Status"><Select value={value.status ?? "new"} onChange={(event) => setValue({ status: event.target.value })}>{statusOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}</Select></Field>
+              <Field label="Archived"><Checkbox label="Archived" checked={Boolean(value.is_archived)} onChange={(event) => setValue({ is_archived: event.target.checked })} /></Field>
+              <Field label="Address" full><Input value={value.address} onChange={(event) => setValue({ address: event.target.value })} required /></Field>
+              <Field label="Notes" full><Textarea value={value.notes} onChange={(event) => setValue({ notes: event.target.value })} /></Field>
             </FormGrid>
           )}
         </FormModal>
@@ -337,57 +286,29 @@ export default function LeadsPage() {
       {followUpLead ? (
         <FormModal
           key={followUpLead.id}
-          title="Create follow up"
-          description={`Schedule a follow up for ${followUpLead.name}.`}
+          title="Create followup"
+          description={`Schedule the next action for ${followUpLead.business_name}.`}
           icon="solar:calendar-mark-bold-duotone"
           isOpen
           initial={followUpInitial(followUpLead)}
           onClose={() => setFollowUpLead(null)}
           onSubmit={async (value) => {
-            await followUpService.create({
-              ...value,
-              scheduled_at: fromInputDateTime(value.scheduled_at) ?? "",
-              completed_at: fromInputDateTime(value.completed_at ?? ""),
-              next_follow_up_at: fromInputDateTime(value.next_follow_up_at ?? ""),
-            });
+            await followUpService.create({ ...value, due_at: fromInputDateTime(value.due_at) ?? value.due_at });
+            void reload();
           }}
         >
           {(value, setValue) => (
             <FormGrid>
-              <Field label="Lead">
-                <Input value={followUpLead.name} disabled />
-              </Field>
-              <Field label="Type">
-                <Select value={value.follow_up_type} onChange={(event) => setValue({ follow_up_type: event.target.value as FollowUpType })}>
-                  {followUpTypeOptions.map((item) => (
-                    <option key={item}>{item}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Status">
-                <Select value={value.status} onChange={(event) => setValue({ status: event.target.value as FollowUpStatus })}>
-                  {followUpStatusOptions.map((item) => (
-                    <option key={item}>{item}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Scheduled at">
-                <Input type="datetime-local" value={value.scheduled_at} onChange={(event) => setValue({ scheduled_at: event.target.value })} required />
-              </Field>
-              <Field label="Completed at">
-                <Input type="datetime-local" value={value.completed_at ?? ""} onChange={(event) => setValue({ completed_at: event.target.value || null })} />
-              </Field>
-              <Field label="Next follow up">
-                <Input type="datetime-local" value={value.next_follow_up_at ?? ""} onChange={(event) => setValue({ next_follow_up_at: event.target.value || null })} />
-              </Field>
-              <Field label="Note" full>
-                <Textarea value={value.note} onChange={(event) => setValue({ note: event.target.value })} required />
-              </Field>
+              <Field label="Lead"><Input value={followUpLead.business_name} disabled /></Field>
+              <Field label="Due at"><Input type="datetime-local" value={toInputDateTime(value.due_at)} onChange={(event) => setValue({ due_at: event.target.value })} required /></Field>
+              <Field label="Status"><Select value={value.status} onChange={(event) => setValue({ status: event.target.value })}>{followUpStatusOptions.map((item) => <option key={item} value={item}>{formatStatus(item)}</option>)}</Select></Field>
+              <Field label="Reason"><Input value={value.reason} onChange={(event) => setValue({ reason: event.target.value })} required /></Field>
+              <Field label="Notes" full><Textarea value={value.notes} onChange={(event) => setValue({ notes: event.target.value })} /></Field>
             </FormGrid>
           )}
         </FormModal>
       ) : null}
-      <DeleteDialog label={deleting?.name ?? "lead"} isOpen={!!deleting} isDeleting={isDeleting} onCancel={() => setDeleting(null)} onConfirm={() => void removeLead()} />
+      <DeleteDialog label={deleting?.business_name ?? "lead"} isOpen={!!deleting} isDeleting={isDeleting} onCancel={() => setDeleting(null)} onConfirm={() => void removeLead()} />
     </CrmPage>
   );
 }

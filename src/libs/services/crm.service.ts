@@ -1,68 +1,90 @@
 import { apiRequest, type ApiRequestOptions } from "@/libs/api/client";
 import type {
-  CrmEmployee,
-  CrmEmployeePayload,
+  AuditLog,
+  AuditLogPayload,
+  Campaign,
+  CampaignPayload,
+  Country,
+  CountryBulkPayload,
+  CountryPayload,
   CrmFollowUp,
   CrmFollowUpPayload,
   CrmLead,
   CrmLeadPayload,
+  DeleteResponse,
   DetailResponse,
+  LeadAssignment,
+  LeadAssignmentPayload,
+  LoginUser,
+  Member,
+  MemberPayload,
   PaginatedResponse,
+  Region,
+  RegionPayload,
+  Service,
+  ServicePayload,
+  Team,
+  TeamPayload,
 } from "@/libs/api/types";
 
-type ListParams = {
+export type ListParams = {
   page?: number;
   page_size?: number;
   search?: string;
   ordering?: string;
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | boolean | null | undefined;
 };
 
 function cleanParams(params?: ListParams) {
-  return Object.fromEntries(Object.entries(params ?? {}).filter(([, value]) => value !== "" && value !== undefined));
+  return Object.fromEntries(
+    Object.entries(params ?? {}).filter(([, value]) => value !== "" && value !== undefined && value !== null),
+  );
 }
 
-export const employeeService = {
+function crudService<T, Payload>(path: string) {
+  return {
+    list(params?: ListParams, options?: ApiRequestOptions) {
+      return apiRequest<PaginatedResponse<T>>(path, { ...options, params: cleanParams(params) });
+    },
+    retrieve(id: string, options?: ApiRequestOptions) {
+      return apiRequest<DetailResponse<T>>(`${path}${id}/`, options);
+    },
+    create(payload: Payload) {
+      return apiRequest<DetailResponse<T>>(path, { method: "POST", data: payload });
+    },
+    update(id: string, payload: Payload) {
+      return apiRequest<DetailResponse<T>>(`${path}${id}/`, { method: "PUT", data: payload });
+    },
+    patch(id: string, payload: Partial<Payload>) {
+      return apiRequest<DetailResponse<T>>(`${path}${id}/`, { method: "PATCH", data: payload });
+    },
+    delete(id: string) {
+      return apiRequest<DeleteResponse>(`${path}${id}/`, { method: "DELETE" });
+    },
+  };
+}
+
+export const userService = {
   list(params?: ListParams, options?: ApiRequestOptions) {
-    return apiRequest<PaginatedResponse<CrmEmployee>>("/employees/", { ...options, params: cleanParams(params) });
-  },
-  create(payload: CrmEmployeePayload) {
-    return apiRequest<DetailResponse<CrmEmployee>>("/employees/", { method: "POST", data: payload });
-  },
-  update(id: string, payload: Partial<CrmEmployeePayload>) {
-    return apiRequest<DetailResponse<CrmEmployee>>(`/employees/${id}/`, { method: "PATCH", data: payload });
-  },
-  delete(id: string) {
-    return apiRequest<void>(`/employees/${id}/`, { method: "DELETE" });
+    return apiRequest<PaginatedResponse<LoginUser>>("/users/", { ...options, params: cleanParams(params) });
   },
 };
 
-export const leadService = {
-  list(params?: ListParams, options?: ApiRequestOptions) {
-    return apiRequest<PaginatedResponse<CrmLead>>("/leads/", { ...options, params: cleanParams(params) });
-  },
-  create(payload: CrmLeadPayload) {
-    return apiRequest<DetailResponse<CrmLead>>("/leads/", { method: "POST", data: payload });
-  },
-  update(id: string, payload: Partial<CrmLeadPayload>) {
-    return apiRequest<DetailResponse<CrmLead>>(`/leads/${id}/`, { method: "PATCH", data: payload });
-  },
-  delete(id: string) {
-    return apiRequest<void>(`/leads/${id}/`, { method: "DELETE" });
+export const memberService = crudService<Member, MemberPayload>("/members/");
+export const teamService = crudService<Team, TeamPayload>("/teams/");
+export const countryService = {
+  ...crudService<Country, CountryPayload>("/countries/"),
+  bulkCreate(payload: CountryBulkPayload) {
+    return apiRequest<DetailResponse<Country[]>>("/countires/bulk-create/", { method: "POST", data: payload });
   },
 };
+export const regionService = crudService<Region, RegionPayload>("/regions/");
+export const serviceService = crudService<Service, ServicePayload>("/services/");
+export const campaignService = crudService<Campaign, CampaignPayload>("/campaigns/");
+export const leadService = crudService<CrmLead, CrmLeadPayload>("/leads/");
+export const leadAssignmentService = crudService<LeadAssignment, LeadAssignmentPayload>("/lead-assignments/");
+export const followUpService = crudService<CrmFollowUp, CrmFollowUpPayload>("/followups/");
+export const auditLogService = crudService<AuditLog, AuditLogPayload>("/audit-logs/");
 
-export const followUpService = {
-  list(params?: ListParams, options?: ApiRequestOptions) {
-    return apiRequest<PaginatedResponse<CrmFollowUp>>("/follow-ups/", { ...options, params: cleanParams(params) });
-  },
-  create(payload: CrmFollowUpPayload) {
-    return apiRequest<DetailResponse<CrmFollowUp>>("/follow-ups/", { method: "POST", data: payload });
-  },
-  update(id: string, payload: Partial<CrmFollowUpPayload>) {
-    return apiRequest<DetailResponse<CrmFollowUp>>(`/follow-ups/${id}/`, { method: "PATCH", data: payload });
-  },
-  delete(id: string) {
-    return apiRequest<void>(`/follow-ups/${id}/`, { method: "DELETE" });
-  },
-};
+export const employeeService = memberService;
+export const activityLogService = auditLogService;

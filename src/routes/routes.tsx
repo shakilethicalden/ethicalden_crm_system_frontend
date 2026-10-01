@@ -42,9 +42,17 @@ export const routes: RouteObject[] = [
             element: <PortalLayout />,
             children: [
               { path: "dashboard", ...page(() => import("@/pages/dashboard/DashboardPage")) },
+              { path: "members", ...page(() => import("@/pages/crm/MembersPage")) },
+              { path: "teams", ...page(() => import("@/pages/crm/TeamsPage")) },
+              { path: "countries", ...page(() => import("@/pages/crm/CountriesPage")) },
+              { path: "regions", ...page(() => import("@/pages/crm/RegionsPage")) },
+              { path: "services", ...page(() => import("@/pages/crm/ServicesPage")) },
+              { path: "campaigns", ...page(() => import("@/pages/crm/CampaignsPage")) },
               { path: "employees", ...page(() => import("@/pages/crm/EmployeesPage")) },
               { path: "leads", ...page(() => import("@/pages/crm/LeadsPage")) },
               { path: "follow-ups", ...page(() => import("@/pages/crm/FollowUpsPage")) },
+              { path: "lead-assignments", ...page(() => import("@/pages/crm/LeadAssignmentsPage")) },
+              { path: "activity-logs", ...page(() => import("@/pages/crm/ActivityLogsPage")) },
 
               { path: "*", ...page(() => import("@/pages/NotFoundPage")) },
             ],

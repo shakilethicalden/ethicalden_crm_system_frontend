@@ -7,9 +7,9 @@ import { useDismiss } from "./useDismiss";
 
 const MENU: Array<{ label: string; href: string; icon: IconName }> = [
   { label: "Dashboard", href: "/dashboard", icon: "solar:widget-2-linear" },
-  { label: "Employees", href: "/employees", icon: "solar:users-group-rounded-linear" },
-  { label: "Lead Management", href: "/leads", icon: "solar:case-round-minimalistic-linear" },
-  { label: "Follow Ups", href: "/follow-ups", icon: "solar:calendar-mark-linear" },
+  { label: "Members", href: "/members", icon: "solar:users-group-rounded-linear" },
+  { label: "Leads", href: "/leads", icon: "solar:case-round-minimalistic-linear" },
+  { label: "Followup", href: "/follow-ups", icon: "solar:calendar-mark-linear" },
 ];
 
 function getInitials(name: string) {
