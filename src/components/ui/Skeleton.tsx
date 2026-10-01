@@ -9,7 +9,7 @@ import { cardClass } from "./styles";
 
 /** Base shimmer block; size it with Tailwind classes (`h-4 w-32`, `size-10 rounded-full`, ...). */
 export function Skeleton({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cn("block animate-pulse rounded-md bg-line/70", className)} />;
+  return <span aria-hidden="true" className={cn("block animate-pulse rounded-md bg-white/12", className)} />;
 }
 
 /** Screen-reader text + delayed fade-in wrapper shared by the composite skeletons. */
@@ -45,7 +45,7 @@ export function TableRowsSkeleton({ rows = 5, columns }: { rows?: number; column
       {Array.from({ length: rows }, (_, rowIndex) => (
         <tr key={rowIndex} aria-hidden="true" className="animate-delayed-fade-in">
           {Array.from({ length: columns }, (_, columnIndex) => (
-            <td key={columnIndex} className="border-r border-b border-line/70 px-3 py-3 last:border-r-0">
+            <td key={columnIndex} className="border-r border-b border-white/10 px-3 py-3 last:border-r-0">
               {columnIndex === 0 && columns > 2 ? (
                 <Skeleton className="mx-auto h-3.5 w-5" />
               ) : columnIndex === 1 ? (
@@ -76,12 +76,12 @@ export function TableRowsSkeleton({ rows = 5, columns }: { rows?: number; column
 /** Stand-alone table skeleton (header + rows) for places that don't render the table while loading. */
 export function TableSkeleton({ rows = 5, columns = 5, label = "Loading..." }: { rows?: number; columns?: number; label?: string }) {
   return (
-    <SkeletonRegion label={label} className="overflow-x-auto rounded-lg border border-line">
+    <SkeletonRegion label={label} className="overflow-x-auto rounded-lg border border-white/10 bg-portal">
       <table className="w-full min-w-[640px] border-collapse">
-        <thead className="bg-soft">
+        <thead className="bg-white/8">
           <tr>
             {Array.from({ length: columns }, (_, index) => (
-              <th key={index} className="border-r border-b border-line px-3 py-2.5 text-left last:border-r-0">
+              <th key={index} className="border-r border-b border-white/10 px-3 py-2.5 text-left last:border-r-0">
                 <Skeleton className="h-3 w-16" />
               </th>
             ))}
@@ -137,7 +137,7 @@ export function DetailSkeleton({
           <Skeleton className="mb-4 h-5 w-40" />
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: items }, (_, index) => (
-              <div key={index} className="grid gap-2 rounded-xl border border-line bg-field px-4 py-3">
+              <div key={index} className="grid gap-2 rounded-xl border border-white/10 bg-white/6 px-4 py-3">
                 <Skeleton className="h-2.5 w-20" />
                 <Skeleton className="h-4 w-3/4" />
               </div>
@@ -185,7 +185,7 @@ export function FormSkeleton({
         ))}
       </div>
 
-      <div className="flex justify-end gap-3 border-t border-line pt-4">
+      <div className="flex justify-end gap-3 border-t border-white/10 pt-4">
         <Skeleton className="h-11 w-24 rounded-xl" />
         <Skeleton className="h-11 w-32 rounded-xl" />
       </div>
@@ -212,7 +212,7 @@ export function CardGridSkeleton({ cards = 6, label = "Loading..." }: { cards?: 
                 <Skeleton key={tile} className="h-14 rounded-xl" />
               ))}
             </div>
-            <div className="flex justify-end border-t border-line pt-3">
+            <div className="flex justify-end border-t border-white/10 pt-3">
               <Skeleton className="h-8 w-28 rounded-md" />
             </div>
           </div>
@@ -268,9 +268,9 @@ export function DashboardSkeleton({ cards = 4 }: { cards?: number }) {
 /** Whole portal shell (sidebar + header + content) — shown while the session is being restored. */
 export function AppShellSkeleton({ label = "Opening CRM portal..." }: { label?: string }) {
   return (
-    <SkeletonRegion label={label} className="min-h-screen bg-soft">
-      <aside className="fixed inset-y-0 left-0 hidden w-[260px] flex-col gap-6 border-r border-line bg-white p-4 lg:flex">
-        <div className="flex items-center gap-2.5 border-b border-line pb-4">
+    <SkeletonRegion label={label} className="min-h-screen bg-portal">
+      <aside className="fixed inset-y-0 left-0 hidden w-[260px] flex-col gap-6 border-r border-white/10 bg-portal p-4 lg:flex">
+        <div className="flex items-center gap-2.5 border-b border-white/10 pb-4">
           <Skeleton className="size-9 rounded-lg" />
           <div className="grid gap-1.5">
             <Skeleton className="h-4 w-32" />
@@ -291,7 +291,7 @@ export function AppShellSkeleton({ label = "Opening CRM portal..." }: { label?: 
       </aside>
 
       <div className="lg:pl-[260px]">
-        <div className="flex h-16 items-center gap-4 border-b border-line bg-white px-4 sm:px-6">
+        <div className="flex h-16 items-center gap-4 border-b border-white/10 bg-portal px-4 sm:px-6">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="hidden h-9 w-full max-w-md rounded-md md:block" />
           <div className="ml-auto flex gap-2">

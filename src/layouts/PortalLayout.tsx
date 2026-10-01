@@ -31,7 +31,7 @@ export function PortalLayout() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-portal text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-portal text-white">
       <div
         aria-hidden="true"
         className="pointer-events-none fixed -top-40 left-1/4 h-96 w-96 rounded-full bg-brand-dark/10 blur-3xl"

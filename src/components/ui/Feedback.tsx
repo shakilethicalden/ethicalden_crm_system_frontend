@@ -29,9 +29,9 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, action, className }: EmptyStateProps) {
   return (
-    <div className={cn("grid justify-items-center gap-2 rounded-xl border border-dashed border-line bg-field px-6 py-12 text-center", className)}>
-      <p className="font-extrabold text-ink">{title}</p>
-      {description ? <p className="max-w-md text-sm text-muted">{description}</p> : null}
+    <div className={cn("grid justify-items-center gap-2 rounded-xl border border-dashed border-white/12 bg-white/6 px-6 py-12 text-center", className)}>
+      <p className="font-extrabold text-white">{title}</p>
+      {description ? <p className="max-w-md text-sm text-white/55">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
