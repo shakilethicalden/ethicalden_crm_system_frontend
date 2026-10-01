@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Badge, Button, Checkbox, DataTable, Field, FormGrid, Icon, IconButton, Input, Select, Textarea } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
 import type { ApiRequestOptions } from "@/libs/api/client";
@@ -99,6 +99,7 @@ function booleanTone(value: boolean): BadgeTone {
 export default function ManagementPage({ resource }: { resource?: ResourceKey }) {
   const [activeResource, setActiveResource] = useState<ResourceKey>("members");
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [createSignal, setCreateSignal] = useState(0);
   const [bulkValue, setBulkValue] = useState<CountryBulkPayload>({
     countries: [{ name: "Bangladesh", regions: ["Dhaka", "Chittagong"] }],
   });
@@ -155,6 +156,8 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
           void services.reload();
         }}
         isRefreshing={members.isRefreshing || teams.isRefreshing || countries.isRefreshing || regions.isRefreshing || services.isRefreshing}
+        onCreate={config.readonly ? undefined : () => setCreateSignal((value) => value + 1)}
+        createLabel={`New ${config.label}`}
       />
       {showResourceTabs || showBulkAction ? (
         <div className="flex flex-wrap gap-2 border-b border-line px-4 py-3">
@@ -174,7 +177,7 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
           ) : null}
         </div>
       ) : null}
-      <ResourceTable key={config.key} config={config} />
+      <ResourceTable key={config.key} config={config} createSignal={createSignal} />
       {bulkOpen ? (
         <FormModal
           title="Bulk create countries"
@@ -203,7 +206,13 @@ export default function ManagementPage({ resource }: { resource?: ResourceKey })
   );
 }
 
-function ResourceTable<Row extends { id: string | number }, Payload extends Record<string, unknown>>({ config }: { config: ResourceConfig<Row, Payload> }) {
+function ResourceTable<Row extends { id: string | number }, Payload extends Record<string, unknown>>({
+  config,
+  createSignal,
+}: {
+  config: ResourceConfig<Row, Payload>;
+  createSignal: number;
+}) {
   const [editing, setEditing] = useState<Row | null>(null);
   const [viewing, setViewing] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState<Row | null>(null);
@@ -215,6 +224,12 @@ function ResourceTable<Row extends { id: string | number }, Payload extends Reco
     [config.key],
     { key: `resource:${config.key}` },
   );
+
+  useEffect(() => {
+    if (createSignal > 0 && !config.readonly) {
+      setEditing({ id: "" } as Row);
+    }
+  }, [config.readonly, createSignal]);
 
   async function removeRow() {
     if (!deleting || !config.service) return;
@@ -263,12 +278,6 @@ function ResourceTable<Row extends { id: string | number }, Payload extends Reco
         >
           {(value, setValue) => <DynamicFields fields={config.fields} value={value} setValue={setValue} />}
         </FormModal>
-      ) : null}
-      {!config.readonly ? (
-        <Button className="m-4 mt-0" onClick={() => setEditing({ id: "" } as Row)}>
-          <Icon icon="solar:add-circle-linear" className="size-4" />
-          New {config.label}
-        </Button>
       ) : null}
       {viewing ? (
         <DetailModal title={config.titleOf(viewing)} description={config.description} icon={config.icon} isOpen onClose={() => setViewing(null)}>
